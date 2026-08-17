@@ -9,6 +9,7 @@ type Props<T extends FieldValues> = {
   textFieldProps?: TextFieldProps;
   controllerProps: Omit<ControllerProps<T>, 'render'>;
   prefixIcon?: SvgIconComponent;
+  margin?: any
 };
 
 export default function ControllerTextField<T extends FieldValues>({
@@ -17,6 +18,7 @@ export default function ControllerTextField<T extends FieldValues>({
   textFieldProps,
   controllerProps,
   prefixIcon: PrefixIcon,
+  margin='normal'
 }: Props<T>) {
   return (
     <Controller
@@ -26,7 +28,7 @@ export default function ControllerTextField<T extends FieldValues>({
           {...field}
           inputRef={ref}
           fullWidth
-          margin='normal'
+          margin={margin}
           error={!!hasError}
           helperText={helperText}
           {...textFieldProps}

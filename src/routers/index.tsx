@@ -6,8 +6,11 @@ import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 import Loadable from '@/components/Loadable';
 import PublicRoute from '@/components/PublicRoute';
 
+//layout
 import AuthLayout from '@/layouts/Auth/AuthLayout';
 import DashboardLayout from '@/layouts/Dashboard';
+import LandingPageLayout from '@/layouts/LandingPage';
+
 import ChangePassword from '@/views/Auth/ChangePassword';
 import ForgotPassword from '@/views/Auth/ForgotPassword';
 import Login from '@/views/Auth/Login';
@@ -17,6 +20,8 @@ import AuthGuard from '@/components/AuthGuard';
 
 // Home
 const Home = Loadable(lazy(() => import('@/views/Home')));
+// Dashboard Landingpage
+const DashboardLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Dashboard')));
 
 // Error
 const NotFound = Loadable(lazy(() => import('@/views/Errors/NotFound')));
@@ -48,7 +53,27 @@ const routes: RouteObject[] = [
   //   element: <Navigate to="login" replace />,
   // },
 
-  // --- NHÁNH 2: CÁC TRANG XÁC THỰC (CHỈ DÀNH CHO NGƯỜI CHƯA ĐĂNG NHẬP) ---
+  {
+    path: '/',
+    element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace />,
+  },
+
+  // --- NHÁNH 2: CÁC TRANG TRONG LANDING PAGE
+  {
+    path: '/',
+    element: <PublicRoute/>,
+    children: [
+      {
+        element: <LandingPageLayout/>,
+        children: [
+          { index: true, element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace/>},
+          { path: ROUTE_PATH.DASHBOARD_LANDING, element: <DashboardLandingPage/>}
+        ]
+      }
+    ]
+  },
+
+  // --- NHÁNH 3: CÁC TRANG XÁC THỰC (CHỈ DÀNH CHO NGƯỜI CHƯA ĐĂNG NHẬP) ---
   {
     path: '/',
     element: <PublicRoute/>,
@@ -56,7 +81,7 @@ const routes: RouteObject[] = [
       {
         element: <AuthLayout />,
         children: [
-          { index: true, element: <Navigate to={ROUTE_PATH.LOGIN} replace /> },
+          // { index: true, element: <Navigate to={ROUTE_PATH.LOGIN} replace /> },
           { path: ROUTE_PATH.LOGIN, element: <Login /> },
           { path: ROUTE_PATH.REGISTRATION, element: <Registration /> },
           { path: ROUTE_PATH.FORGOT_PASSWORD, element: <ForgotPassword /> },

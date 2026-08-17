@@ -8,6 +8,14 @@ export const ROUTE_PATH = {
   PRODUCT_CATEGORY_UPDATE: '/products/categories/:id/update',
   PRODUCT_CATEGORY_DELETE: '/products/categories/delete',
 
+  // Landing page
+  DASHBOARD_LANDING: '/trang-chu',
+  PRODUCT_LANDING: '/san-pham',
+  PROJECT_LANDING: '/du-an',
+  INTRO_LANDING: '/gioi-thieu',
+  CONTACT_LANDING: '/lien-he',
+  SUPPORT_LANDING: '/ho-tro',
+
   // Manage
   MANAGE: '/manage',
   // Product
