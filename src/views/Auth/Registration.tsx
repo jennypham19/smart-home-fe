@@ -79,7 +79,7 @@ function ArtPanel() {
       
       <Box display='flex' justifyContent='space-between'>
         <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ position: 'relative', zIndex: 1 }}>
-          {numberPeople.map((label) => (
+          {numberPeople.map((label, idx) => (
             <Avatar 
               sx={{ width: { xs: 34, md: 50}, height: { xs: 34, md: 50 }, bgcolor: 'transparent', color: '#0a0a0d', cursor: 'pointer', border: '1px solid #fff' }}
             >
