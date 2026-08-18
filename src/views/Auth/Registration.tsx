@@ -15,7 +15,7 @@ import useBoolean from '@/hooks/useBoolean';
 import useNotification from '@/hooks/useNotification';
 import { registrationSchema } from '@/schemas/auth-schema';
 import { signUp } from '@/services/auth-service';
-import logo from "@/assets/images/users/logo.png";
+import register from "@/assets/images/users/register.png";
 import Grid from "@mui/material/Grid2"
 import { COLORS } from '@/constants/colors';
 
@@ -25,8 +25,8 @@ function ArtPanel() {
     <Box
       sx={{
         position: 'relative',
-        height: '100%',
-        minHeight: { xs: 420, md: 640 },
+        height: { xs: 320, md: '100%' },
+        minHeight: { md: 640},
         p: { xs: 4, md: 6 },
         display: 'flex',
         flexDirection: 'column',
@@ -41,7 +41,7 @@ function ArtPanel() {
               rgba(11, 18, 32, 0.65),
               rgba(11, 18, 32, 0.65)
             ),
-            url(${logo})
+            url(${register})
           `,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -63,7 +63,7 @@ function ArtPanel() {
         }}
       />
 
-      <Box sx={{ position: 'relative', zIndex: 1, top: '50%' }}>
+      <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, p: { xs: 3, md: 4 }, background: 'linear-gradient(180deg, transparent 0%, rgba(6,10,18,0.85) 55%, #060a12 100%)', }}>
         <Typography
           variant="h2"
           sx={{ fontSize: { xs: '1.3rem', md: '1.8rem' }, lineHeight: 1.15, mb: 2, color: '#fff' }}
@@ -75,29 +75,44 @@ function ArtPanel() {
         <Typography sx={{ color: 'text.secondary', maxWidth: 380, lineHeight: 1.8 }}>
           Tham gia cùng hàng nghìn chuyên gia công nghệ để trải nghiệm những thiết bị phần cứng tối tân nhất tại FPT SMART HOME
         </Typography>
+        <Box display='flex' justifyContent='space-between' mt={2}>
+          <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ position: 'relative', zIndex: 1 }}>
+            {numberPeople.map((label, idx) => (
+              <Avatar 
+                key={idx}
+                sx={{ 
+                  width: { xs: 34, md: 50}, 
+                  height: { xs: 34, md: 50 }, 
+                  bgcolor: '#2a3446', color: '#0a0a0d', 
+                  cursor: 'pointer', 
+                  border: '1px solid #121a2a', ml: idx !== 0 ? -2.5 : 0
+                }}
+              >
+                <Person sx={{ color: '#fff', fontSize: { xs: 20, md: 30 }}} />
+              </Avatar> 
+            ))}
+              <Avatar 
+                sx={{ 
+                  width: { xs: 34, md: 50}, 
+                  height: { xs: 34, md: 50 }, 
+                  bgcolor: '#2a3446', color: '#0a0a0d', 
+                  cursor: 'pointer', 
+                  border: '1px solid #121a2a',
+                  ml: -2.5
+                }}
+              >
+                <Add sx={{ color: '#fff', fontSize: { xs: 20, md: 30 }}} />
+              </Avatar> 
+          </Stack>     
+          <Typography sx={{ color: '#fff'}}>
+            +500 người vừa tham gia mua 
+            <br/>
+            sắm tại FPT SMART HOME
+          </Typography>   
+        </Box>        
       </Box>
       
-      <Box display='flex' justifyContent='space-between'>
-        <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ position: 'relative', zIndex: 1 }}>
-          {numberPeople.map((label, idx) => (
-            <Avatar 
-              sx={{ width: { xs: 34, md: 50}, height: { xs: 34, md: 50 }, bgcolor: 'transparent', color: '#0a0a0d', cursor: 'pointer', border: '1px solid #fff' }}
-            >
-              <Person sx={{ color: '#fff', fontSize: { xs: 20, md: 30 }}} />
-            </Avatar> 
-          ))}
-            <Avatar 
-              sx={{ width: { xs: 34, md: 50}, height: { xs: 34, md: 50 }, bgcolor: 'transparent', color: '#0a0a0d', cursor: 'pointer', border: '1px solid #fff' }}
-            >
-              <Add sx={{ color: '#fff', fontSize: { xs: 20, md: 30 }}} />
-            </Avatar> 
-        </Stack>     
-        <Typography sx={{ color: '#fff'}}>
-          +500 người vừa tham gia mua 
-          <br/>
-          sắm tại FPT SMART HOME
-        </Typography>   
-      </Box>
+
 
     </Box>
   );
@@ -161,7 +176,7 @@ export default function Registration() {
 
   return (
     <Page title='FPT Smart Home - Đăng ký'>
-      <Box sx={{ minHeight: '100%', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ minHeight: '100%', bgcolor: 'background.default', flexGrow: 1, py: { xs: 4, md: 8 } }}>
         <Container maxWidth='lg' sx={{ py: { xs: 4, md: 6 }}}>
           <Grid container>
             <Grid size={{ xs: 12, md: 6 }}>

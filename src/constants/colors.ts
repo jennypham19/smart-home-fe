@@ -12,6 +12,6 @@ export const COLORS = {
     CANCEL: grey[600],
   },
   NEED_TO_PAY: yellow[600],
-  COLOR_DETAIL: '#C1E9FF'
+  COLOR_DETAIL: '#33E9FD'
 
 };
