@@ -3,6 +3,7 @@ import AboutHero from "./components/AboutHero";
 import MissionSection from "./components/MissionSection";
 import Market from "./components/Market";
 import PartnersSection from "./components/PartnersSection";
+import ContactSection from "./components/ContactSection";
 
 interface AboutUsLandingPageProps{
 
@@ -23,6 +24,9 @@ const AboutUsLandingPage = (props: AboutUsLandingPageProps) => {
 
             {/* Partners Section */}
             <PartnersSection/>
+
+            {/* Contact Section */}
+            <ContactSection/>
         </Page>
     )
 }

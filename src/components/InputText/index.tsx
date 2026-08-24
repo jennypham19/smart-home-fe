@@ -68,7 +68,8 @@ interface CustomInputProps {
   from?: string;
   startAdornment?: React.ReactNode;
   endAdornment?: React.ReactNode;
-  mt?: any
+  mt?: any;
+  bgcolor?: string;
 }
 
 const InputText: React.FC<CustomInputProps> = ({
@@ -97,7 +98,8 @@ const InputText: React.FC<CustomInputProps> = ({
   from,
   startAdornment,
   endAdornment,
-  mt
+  mt,
+  bgcolor
 }) => {
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down('md'));
@@ -345,7 +347,9 @@ const InputText: React.FC<CustomInputProps> = ({
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                     border: from ? "none" : "1px solid rgb(53, 50, 50)",
                 },
-                color: 'black'
+                color: 'black',
+                // '& .MuiOutlinedInput-input': { color: 'text.primary', py: 1.6 },
+                // bgcolor: bgcolor,
             },
             startAdornment: startAdornment,
             endAdornment: (hasValue && !disabled) ? (

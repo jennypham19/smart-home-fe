@@ -20,9 +20,13 @@ import AuthGuard from '@/components/AuthGuard';
 
 // Home
 const Home = Loadable(lazy(() => import('@/views/Home')));
+
 // Dashboard Landingpage
 const DashboardLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Dashboard')));
 const AboutUsLandingPage = Loadable(lazy(() => import('@/views/LandingPage/AboutUs')));
+const ContactLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Contact')));
+const SupportLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Support')));
+const ProjectLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Project')));
 
 // Error
 const NotFound = Loadable(lazy(() => import('@/views/Errors/NotFound')));
@@ -69,7 +73,10 @@ const routes: RouteObject[] = [
         children: [
           { index: true, element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace/>},
           { path: ROUTE_PATH.DASHBOARD_LANDING, element: <DashboardLandingPage/>},
-          { path: ROUTE_PATH.INTRO_LANDING, element: <AboutUsLandingPage/>}
+          { path: ROUTE_PATH.INTRO_LANDING, element: <AboutUsLandingPage/>},
+          { path: ROUTE_PATH.CONTACT_LANDING, element: <ContactLandingPage/>},
+          { path: ROUTE_PATH.SUPPORT_LANDING, element: <SupportLandingPage/>},
+          { path: ROUTE_PATH.PROJECT_LANDING, element: <ProjectLandingPage/>},
         ]
       }
     ]
