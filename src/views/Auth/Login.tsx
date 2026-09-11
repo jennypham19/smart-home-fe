@@ -36,11 +36,19 @@ import Logger from '@/utils/Logger';
 import Grid from "@mui/material/Grid2"
 import { COLORS } from '@/constants/colors';
 import logo from "@/assets/images/users/logo.png"
+import Tabs, { TabItem } from '../components/Tabs';
+import { CategoryType } from '@/constants/tab';
+import LoginWithPassword from './components/LoginWithPassword';
+import LoginWithNoPassword from './components/LoginWithNoPassword';
 
 const heroChips = ['Technology', 'Smart home', 'Modern technology for future'];
+const tabs: TabItem[] = [
+  { label: 'Mật khẩu', value: CategoryType.FIRST },
+  { label: 'Mã OTP', value: CategoryType.SECOND }
+]
 
 
-interface LoginFormInputs {
+export interface LoginFormInputs {
   username: string;
   password: string;
 }
@@ -63,6 +71,7 @@ export default function Login() {
   const [_error, setError] = useState('');
   const [showPassword, setShowPassword] = useBoolean(false);
   const [remember, setRemember] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(CategoryType.FIRST);
 
   useEffect(() => {
     setFocus('username');
@@ -184,11 +193,11 @@ function ArtPanel() {
     <Box sx={{ minHeight: '100%', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
       <Container maxWidth='lg' sx={{ py: { xs: 4, md: 6 } }}>
         <Grid container>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <ArtPanel />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ p: { xs: 3, sm: 5, md: 6 }, maxWidth: 460, mx: 'auto' }}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Box sx={{ p: { xs: 3, sm: 5, md: 6 }, maxWidth: 600, mx: 'auto' }}>
               <Box>
                 <Typography
                   component='h1'
@@ -207,93 +216,29 @@ function ArtPanel() {
                   {_error}
                 </Alert>
               )}
-              <Box
-                component='form'
-                onSubmit={handleSubmit(onSubmit)}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '100%',
-                  gap: 2,
-                }}
-              >
-                <Box>
-                  <Typography variant="body2" color='text.secondary'>Email / Số điện thoại</Typography>
-                  <ControllerTextField<LoginFormInputs>
-                    controllerProps={{
-                      name: 'username',
-                      defaultValue: '',
-                      control: control,
-                    }}
-                    textFieldProps={{
-                      label: '',
-                      error: !!errors.username,
-                      helperText: errors.username?.message,
-                      sx: { ariaLabel: 'username' },
-                      margin: 'none'
-                    }}
-                    prefixIcon={Email}
-                  />                  
-                </Box>
-                
-                <Box>
-                  <Typography variant="body2" color='text.secondary'>Mật khẩu</Typography>
-                  <ControllerTextField<LoginFormInputs>
-                    controllerProps={{
-                      name: 'password',
-                      defaultValue: '',
-                      control: control,
-                    }}
-                    textFieldProps={{
-                      label: '',
-                      type: showPassword ? 'text' : 'password',
-                      error: !!errors.password,
-                      helperText: errors.password?.message,
-                      margin: 'none',
-                      slotProps: {
-                        input: {
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              <IconButton
-                                aria-label='toggle password visibility'
-                                onClick={() => setShowPassword.toggle()}
-                                edge='end'
-                              >
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        },
-                      },
-                    }}
-                    prefixIcon={Lock}
-                  />                  
-                </Box>
-
-                  <Box>
-                    <Typography
-                      color='primary'
-                      component={RouterLink}
-                      to={`/${ROUTE_PATH.AUTH}/${ROUTE_PATH.FORGOT_PASSWORD}`}
-                      sx={{ textAlign: 'end', display: 'block' }}
-                    >
-                      Quên mật khẩu
-                    </Typography>
-                  </Box>
-                <LoadingButton loading={_loading} type='submit' variant='contained' fullWidth>
-                  Đăng nhập
-                </LoadingButton>
-                <Box display='flex' justifyContent='center' alignItems='center' flexWrap='wrap' gap={2}>
-                  <Typography sx={{ color: 'text.secondary' }}>Bạn đã có tài khoản ?{' '}</Typography>
-                  <Typography
-                    to={`/${ROUTE_PATH.REGISTRATION}`}
-                    component={RouterLink}
-                    color='primary'
-                  >
-                    Tạo tài khoản mới
-                  </Typography>
-                </Box>
+              <Box mb={2.5} sx={{ border: '1px solid #a19f9f', p: 1, borderRadius: 1 }}>
+                <Tabs viewMode={activeCategory} onChange={setActiveCategory} DataViewMode={tabs} />
               </Box>
+              {activeCategory === 0 && (
+                <LoginWithPassword
+                  handleSubmit={handleSubmit}
+                  onSubmit={onSubmit}
+                  control={control}
+                  errors={errors}
+                  showPassword={showPassword}
+                  setShowPassword={setShowPassword}
+                  _loading={_loading}
+                  onChangeTab={() => setActiveCategory(CategoryType.SECOND)}
+                  />
+              )}
+              {activeCategory === 1 && (
+                <LoginWithNoPassword
+                  handleSubmit={handleSubmit}
+                  onSubmit={onSubmit}
+                  _loading={_loading}
+                  onChangeTab={() => setActiveCategory(CategoryType.FIRST)}
+                />
+              )}
             </Box>
           </Grid>
         </Grid>

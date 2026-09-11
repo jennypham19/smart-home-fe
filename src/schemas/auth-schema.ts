@@ -6,7 +6,8 @@ const passwordValidateSchema = string()
   .required('Mật khẩu là bắt buộc')
   .min(8, 'Mật khẩu bắt buộc có ít nhất 8 kí tự')
   .matches(/[a-zA-Z]/, 'Mật khẩu phải bao gồm ít nhất một chữ cái')
-  .matches(/\d/, 'Mật khẩu phải bao gồm ít nhất một số');
+  .matches(/\d/, 'Mật khẩu phải bao gồm ít nhất một số')
+  .matches(/[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`;']/, 'Mật khẩu phải bao gồm ít nhất một ký tự đặc biệt');
 
 const confirmPasswordValidateSchema = (label: string) =>
   string()

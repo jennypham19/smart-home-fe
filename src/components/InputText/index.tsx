@@ -70,6 +70,7 @@ interface CustomInputProps {
   endAdornment?: React.ReactNode;
   mt?: any;
   bgcolor?: string;
+  fromNoPassword?: boolean;
 }
 
 const InputText: React.FC<CustomInputProps> = ({
@@ -99,7 +100,8 @@ const InputText: React.FC<CustomInputProps> = ({
   startAdornment,
   endAdornment,
   mt,
-  bgcolor
+  bgcolor,
+  fromNoPassword = false,
 }) => {
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down('md'));
@@ -329,7 +331,7 @@ const InputText: React.FC<CustomInputProps> = ({
     disabled,
     sx,
     multiline: multiline,
-    rows: multiline ? rows : undefined, 
+    rows: multiline ? rows : undefined
   };
 
 
@@ -347,7 +349,7 @@ const InputText: React.FC<CustomInputProps> = ({
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                     border: from ? "none" : "1px solid rgb(53, 50, 50)",
                 },
-                color: 'black',
+                color: fromNoPassword ? '#fff' : '#000',
                 // '& .MuiOutlinedInput-input': { color: 'text.primary', py: 1.6 },
                 // bgcolor: bgcolor,
             },

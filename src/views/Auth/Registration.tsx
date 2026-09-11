@@ -18,6 +18,7 @@ import { signUp } from '@/services/auth-service';
 import register from "@/assets/images/users/register.png";
 import Grid from "@mui/material/Grid2"
 import { COLORS } from '@/constants/colors';
+import PasswordRequirements from '@/components/PasswordRequirements';
 
 const numberPeople = [ 1, 2]
 function ArtPanel() {
@@ -27,7 +28,7 @@ function ArtPanel() {
         position: 'relative',
         height: { xs: 320, md: '100%' },
         minHeight: { md: 640},
-        p: { xs: 4, md: 6 },
+        p: { xs: 4, md: 5 },
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -176,14 +177,14 @@ export default function Registration() {
 
   return (
     <Page title='FPT Smart Home - Đăng ký'>
-      <Box sx={{ minHeight: '100%', bgcolor: 'background.default', flexGrow: 1, py: { xs: 4, md: 8 } }}>
-        <Container maxWidth='lg' sx={{ py: { xs: 4, md: 6 }}}>
+      <Box sx={{ minHeight: '100%', bgcolor: 'background.default', flexGrow: 1, py: { xs: 3, md: 5 } }}>
+        <Container maxWidth='lg' sx={{ py: { xs: 3, md: 2 }}}>
           <Grid container>
             <Grid size={{ xs: 12, md: 6 }}>
               <ArtPanel/>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ p: { xs: 3, sm: 5, md: 6 }, maxWidth: 460, mx: 'auto' }}>
+              <Box sx={{ p: { xs: 3, sm: 4 }, maxWidth: 460, mx: 'auto' }}>
                 <Box>
                   <Typography
                     component='h1'
@@ -193,7 +194,7 @@ export default function Registration() {
                   >
                     Tạo tài khoản
                   </Typography>
-                  <Typography sx={{ color: 'text.secondary', mb: 4 }}>
+                  <Typography sx={{ color: 'text.secondary', mb: 3 }}>
                     Bắt đầu hành trình công nghệ của bạn ngay hôm nay
                   </Typography>
                 </Box>
@@ -295,6 +296,7 @@ export default function Registration() {
                       }}
                       prefixIcon={Lock}
                     />
+                    <PasswordRequirements password={password} />
                   </Box>
                   <Box>
                     <Typography variant="body2" color='text.secondary'>Mật khẩu nhập lại</Typography>
