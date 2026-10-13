@@ -216,10 +216,10 @@ function ArtPanel() {
                   {_error}
                 </Alert>
               )}
-              <Box mb={2.5} sx={{ border: '1px solid #a19f9f', p: 1, borderRadius: 1 }}>
+              {/* <Box mb={2.5} sx={{ border: '1px solid #a19f9f', p: 1, borderRadius: 1 }}>
                 <Tabs viewMode={activeCategory} onChange={setActiveCategory} DataViewMode={tabs} />
-              </Box>
-              {activeCategory === 0 && (
+              </Box> */}
+              {activeCategory !== CategoryType.SECOND && (
                 <LoginWithPassword
                   handleSubmit={handleSubmit}
                   onSubmit={onSubmit}
@@ -229,9 +229,9 @@ function ArtPanel() {
                   setShowPassword={setShowPassword}
                   _loading={_loading}
                   onChangeTab={() => setActiveCategory(CategoryType.SECOND)}
-                  />
-              )}
-              {activeCategory === 1 && (
+                />
+              )}  
+              {activeCategory === CategoryType.SECOND && (
                 <LoginWithNoPassword
                   handleSubmit={handleSubmit}
                   onSubmit={onSubmit}

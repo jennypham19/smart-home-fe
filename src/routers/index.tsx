@@ -10,6 +10,7 @@ import PublicRoute from '@/components/PublicRoute';
 import AuthLayout from '@/layouts/Auth/AuthLayout';
 import DashboardLayout from '@/layouts/Dashboard';
 import LandingPageLayout from '@/layouts/LandingPage';
+import AuthAdministrationLayout from '@/layouts/AuthAdministration/AuthAdministrationLayout';
 
 import ChangePassword from '@/views/Auth/ChangePassword';
 import ForgotPassword from '@/views/Auth/ForgotPassword';
@@ -32,7 +33,8 @@ const ProjectLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Proje
 const NotFound = Loadable(lazy(() => import('@/views/Errors/NotFound')));
 const PermissionDenied = Loadable(lazy(() => import('@/views/Errors/PermissionDenied')));
 
-// Auth
+// Auth Administration
+const LoginAdministration = Loadable(lazy(() => import('@/views/AuthAdministration/Login')));
 
 const routes: RouteObject[] = [
   // --- NHÁNH 1: CÁC TRANG ĐƯỢC BẢO VỆ (PRIVATE) ---
@@ -96,6 +98,20 @@ const routes: RouteObject[] = [
           { path: ROUTE_PATH.FORGOT_PASSWORD, element: <ForgotPassword /> },
           { path: ROUTE_PATH.CHANGE_PASSWORD, element: <ChangePassword /> },
         ],
+      }
+    ]
+  },
+
+  // --- NHÁNH 4: CÁC TRANG XÁC THỰC CHO HỆ THỐNG NỘI BỘ (CHỈ DÀNH CHO NGƯỜI CHƯA ĐĂNG NHẬP) ---
+  {
+    path: '/administration/',
+    element: <PublicRoute/>,
+    children: [
+      {
+        element: <AuthAdministrationLayout/>,
+        children: [
+          { path: ROUTE_PATH.LOGIN, element: <LoginAdministration /> },
+        ]
       }
     ]
   },

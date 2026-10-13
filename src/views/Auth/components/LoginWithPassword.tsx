@@ -1,11 +1,11 @@
 import ControllerTextField from "@/components/ControllerField/ControllerTextField";
-import { Box, Divider, IconButton, InputAdornment, Typography } from "@mui/material";
+import { Box, Button, Divider, IconButton, InputAdornment, Typography } from "@mui/material";
 import { LoginFormInputs } from "../Login";
-import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Email, Google, Lock, PhoneIphone, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTE_PATH } from "@/constants/routes";
 import { LoadingButton } from "@mui/lab";
-
+import Grid from "@mui/material/Grid2";
 
 interface LoginWithPasswordProps {
     handleSubmit: any;
@@ -99,11 +99,25 @@ const LoginWithPassword: React.FC<LoginWithPasswordProps> = (props) => {
                 </LoadingButton>
                 <Box display='flex' alignItems='center' justifyContent='space-between' my={2} gap={1}>
                     <Divider sx={{ flex: 1, border: '1px solid #a19f9f' }}/>
-                    <Typography color='textSecondary' sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }} onClick={onChangeTab} >
-                      HOẶC ĐĂNG NHẬP NHANH
+                    <Typography color='textSecondary' sx={{ whiteSpace: 'nowrap', cursor: 'pointer' }}>
+                      Hoặc tiếp tục với
                     </Typography>
                     <Divider sx={{ flex: 1, border: '1px solid #a19f9f'}}/>
                 </Box>
+                <Grid container spacing={2}>
+                  <Grid size={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a19f9f', borderRadius: 1, flexDirection: 'column', gap: 1, py: 1, cursor: 'pointer' }}> 
+                      <Google sx={{ color: '#a19f9f', mr: 1 }} />
+                      <Typography color="text.secondary">Google</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid size={6}>
+                    <Box onClick={onChangeTab} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a19f9f', borderRadius: 1, flexDirection: 'column', gap: 1, py: 1, cursor: 'pointer' }}> 
+                      <PhoneIphone sx={{ color: '#a19f9f', mr: 1 }} />
+                      <Typography color="text.secondary">OTP</Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
                 <Box display='flex' justifyContent='center' alignItems='center' flexWrap='wrap' gap={2}>
                   <Typography sx={{ color: 'text.secondary' }}>Bạn đã có tài khoản ?{' '}</Typography>
                   <Typography
