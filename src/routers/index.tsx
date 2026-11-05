@@ -28,6 +28,7 @@ const AboutUsLandingPage = Loadable(lazy(() => import('@/views/LandingPage/About
 const ContactLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Contact')));
 const SupportLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Support')));
 const ProjectLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Project')));
+const ProductLandingPage = Loadable(lazy(() => import('@/views/LandingPage/Product/index')))
 
 // Error
 const NotFound = Loadable(lazy(() => import('@/views/Errors/NotFound')));
@@ -79,6 +80,7 @@ const routes: RouteObject[] = [
           { path: ROUTE_PATH.CONTACT_LANDING, element: <ContactLandingPage/>},
           { path: ROUTE_PATH.SUPPORT_LANDING, element: <SupportLandingPage/>},
           { path: ROUTE_PATH.PROJECT_LANDING, element: <ProjectLandingPage/>},
+          { path: ROUTE_PATH.PRODUCT_LANDING, element: <ProductLandingPage/>}
         ]
       }
     ]

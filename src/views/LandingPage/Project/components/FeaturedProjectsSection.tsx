@@ -53,9 +53,14 @@ const projects = [
   },
 ];
 
-export default function FeaturedProjectsSection() {
+interface FeaturedProjectsSectionProps{
+  id: string,
+}
+
+export default function FeaturedProjectsSection(props: FeaturedProjectsSectionProps) {
+  const { id } = props;
   return (
-    <Box sx={{ bgcolor: '#0a0f1a', py: { xs: 8, md: 10 } }}>
+    <Box id={id} sx={{ bgcolor: '#0a0f1a', py: { xs: 8, md: 10 } }}>
       <Container maxWidth="lg">
         <Stack
           direction="row"

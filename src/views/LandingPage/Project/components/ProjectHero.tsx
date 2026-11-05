@@ -2,7 +2,12 @@ import { Box, Button, Chip, Container, Stack, Typography } from "@mui/material";
 import project_hero from '@/assets/images/users/project_hero.png'
 import { COLORS } from "@/constants/colors";
 
-export default function ProjectHero() {
+interface ProjectHeroProps{
+    onScrollToSection: (id: string) => void;
+}
+
+export default function ProjectHero(props: ProjectHeroProps) {
+    const { onScrollToSection } = props;
     return (
         <Box
             sx={{
@@ -68,10 +73,10 @@ export default function ProjectHero() {
                 </Typography>
 
                 <Stack direction="row" spacing={2} sx={{ justifyContent: 'center' }}>
-                    <Button variant="contained" color="primary" size="large" sx={{ bgcolor: COLORS.COLOR_DETAIL, '&:hover': { bgcolor: COLORS.COLOR_DETAIL }, color: '#000' }}>
+                    <Button onClick={() => onScrollToSection('featured-projects')} variant="contained" color="primary" size="large" sx={{ bgcolor: COLORS.COLOR_DETAIL, '&:hover': { bgcolor: COLORS.COLOR_DETAIL }, color: '#000' }}>
                         Xem các dự án
                     </Button>
-                    <Button variant="outlined" size="large" sx={{ borderColor: COLORS.COLOR_DETAIL, color: COLORS.COLOR_DETAIL }}>
+                    <Button onClick={() => onScrollToSection('top-project-product')} variant="outlined" size="large" sx={{ borderColor: COLORS.COLOR_DETAIL, color: COLORS.COLOR_DETAIL }}>
                         Sản phẩm dự án
                     </Button>
                 </Stack>

@@ -13,6 +13,6 @@ export const COLORS = {
   },
   NEED_TO_PAY: yellow[600],
   COLOR_DETAIL: '#33E9FD',
-  COLOR_PRIMARY: '#2764EB'
-
+  COLOR_PRIMARY: '#2764EB',
+  COLOR_TEXT: '#fff'
 };
