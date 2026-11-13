@@ -18,6 +18,17 @@ export const ROUTE_PATH = {
 
   // Manage
   MANAGE: '/manage',
+  MANAGE_HOME: 'home',
+  MANAGE_PRODUCT_APPROVAL: 'duyet-san-xuat',
+  MANAGE_EXCHANGE_APPROVAL: 'duyet-giao hàng',
+  MANAGE_COMPLETED_ORDER: 'don-hoan-thanh',
+  MANAGE_PRODUCTION_ORDER: 'don-san-xuat',
+  MANAGE_EXCHANGE_ORDER: 'don-giao-nhan',
+  MANAGE_UPDATE_ORDER: 'cap-nhat-don',
+
+
+
+
   // Product
   PRODUCT_LISTS: '/products/lists',
   PRODUCT_LISTS_CREATE: '/products/lists/create',

@@ -1,24 +1,15 @@
 //Output
 export interface IUser{
     id: string,
-    name: string,
+    fullName: string,
     account: string
     password: string,
-    gender: string,
-    position: string,
-    title: string,
-    dob: string,
-    cccd: string,
     email: string,
     phone: string,
     address: string,
-    isActived: number,
-    isDefaultType: number,
-    isReset: boolean,
+    status: number,
     isDeleted: number,
-    avatarUrl: string,
     role: string,
     createdAt: string,
     updatedAt: string,
-    professionalBiography: string
 }

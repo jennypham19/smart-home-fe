@@ -1,12 +1,14 @@
 import { MINI_SIDEBAR_WIDTH, SIDEBAR_WIDTH } from '@/constants/layouts';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Box, useMediaQuery } from '@mui/material';
+import { ChevronLeft, ChevronRight, DensityMedium } from '@mui/icons-material';
+import { Box, Stack, Typography, useMediaQuery } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import IconButton from '@mui/material/IconButton';
 import { CSSObject, Theme, useTheme } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import SelectLanguage from './SelectLanguage';
 import Profile from './Sidebar/Profile';
+import { useSidebarTilte } from '@/contexts/SidebarTitleContext';
+import { COLORS } from '@/constants/colors';
 
 interface Props {
   collapsed: boolean;
@@ -33,6 +35,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
 const Header = (props: Props) => {
   const theme = useTheme();
   const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const { title } = useSidebarTilte();
 
   return (
     <AppBar
@@ -40,7 +43,7 @@ const Header = (props: Props) => {
       elevation={10}
       sx={{
         color: 'common.black',
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.PRIMARY,
         height: '64px',
         borderBottom: 'thin solid #E6E8F0',
         marginLeft: 'auto',
@@ -53,20 +56,23 @@ const Header = (props: Props) => {
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
-        <IconButton
-          onClick={props.onToggleCollapsed}
-          edge='start'
-          sx={{
-            color: '#000',
-            borderRadius: '4px',
-            width: '36px',
-            height: '36px',
-            fontSize: '1rem',
-            backgroundColor: '#f0f0f0',
-          }}
-        >
-          {props.collapsed ? <ChevronRight /> : <ChevronLeft />}
-        </IconButton>
+        <Stack direction='row'>
+          <IconButton
+            onClick={props.onToggleCollapsed}
+            edge='start'
+            sx={{
+              color: '#000',
+              borderRadius: '4px',
+              width: '36px',
+              height: '36px',
+              fontSize: '1rem',
+              backgroundColor: '#f0f0f0',
+            }}
+          >
+            {props.collapsed ? <DensityMedium /> : <DensityMedium />}
+          </IconButton>
+          <Typography sx={{ color: '#fff'}} fontWeight={700} display='flex' justifyContent="center" alignItems='center'>{title.toUpperCase()}</Typography>
+        </Stack>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <SelectLanguage />
           <Profile />

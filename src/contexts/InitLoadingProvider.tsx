@@ -4,12 +4,13 @@ import { useEffect } from 'react';
 import LoadingOverlay from '@/components/ProTable/core/LoadingOverlay';
 
 import { getCurrentUser } from '@/services/user-service';
-import { setInitApp, setIsAuth, setProfile } from '@/slices/auth';
+import { setInitApp, setIsAuth } from '@/slices/auth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { FCC } from '@/types/react';
 import Logger from '@/utils/Logger';
 import { getAccessToken, removeAccessToken } from '@/utils/AuthHelper';
 import { IUser } from '@/types/user';
+import { setProfile } from '@/slices/user';
 
 const InitLoadingProvider: FCC = ({ children }) => {
   const { isInitialized } = useAppSelector((state) => state.auth);

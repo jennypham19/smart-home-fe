@@ -4,7 +4,6 @@ import { COLORS } from "@/constants/colors";
 import { Alert, Box, Checkbox, Chip, Container, FormControlLabel, IconButton, InputAdornment, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { useForm } from "react-hook-form";
-import { LoginFormInputs } from "../Auth/Login";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "@/schemas/auth-schema";
 import { useTranslation } from "react-i18next";
@@ -17,9 +16,18 @@ import ControllerTextField from "@/components/ControllerField/ControllerTextFiel
 import { ROUTE_PATH } from "@/constants/routes";
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { LoadingButton } from "@mui/lab";
+import { signIn } from "@/services/auth-service";
+import { setAccessToken } from "@/utils/AuthHelper";
+import { setProfile } from "@/slices/user";
+import { setIsAuth } from "@/slices/auth";
 
 
 const heroChips = ['Technology', 'Smart home', 'Modern technology for future'];
+
+interface LoginFormInputs {
+  username: string;
+  password: string;
+}
 
 export default function LoginAdministration() {
   const {
@@ -44,7 +52,37 @@ export default function LoginAdministration() {
     setFocus('username');
   }, [setFocus]);
 
-  const onSubmit = async (values: LoginFormInputs) => {}
+  const onSubmit = async (values: LoginFormInputs) => {
+    setLoading.on();
+    try {
+      const respAuth = await signIn({
+        account: values.username,
+        password: values.password
+      });
+      const accessToken = respAuth.data?.accessToken;
+      const userProfile = respAuth.data?.user;
+      
+      if(accessToken && userProfile){
+        setAccessToken(accessToken);
+        // Cập nhật state của Redux/Context
+        // Thông tin user đã có sẵn từ response login, không cần gọi /me nữa
+        dispatch(setProfile(userProfile));
+        dispatch(setIsAuth(true))
+        // Thông báo và chuyển hướng
+        notify({
+          message: t('login_success'),
+          severity: 'success',
+        });
+        navigate(ROUTE_PATH.MANAGE, { replace: true })
+      } else {
+        setError(respAuth.message || 'Login failed, no access token returned.');
+      }
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setLoading.off();
+    }
+  }
   
   function ArtPanel() {
     return (
@@ -174,7 +212,7 @@ export default function LoginAdministration() {
                           >
                             {/* Email công ty / Tài khoản nhân sự */}
                             <Box>
-                              <Typography variant="body2" color='text.secondary'>Email công ty / Tài khoản nhân sự</Typography>
+                              <Typography variant="body2" color='text.secondary'>Tài khoản</Typography>
                               <ControllerTextField<LoginFormInputs>
                                 controllerProps={{
                                   name: 'username',
@@ -189,7 +227,7 @@ export default function LoginAdministration() {
                                   margin: 'none'
                                 }}
                                 prefixIcon={Email}
-                              />                  
+                              />
                             </Box>
 
                             {/* Mật khẩu */}
@@ -224,7 +262,7 @@ export default function LoginAdministration() {
                                   },
                                 }}
                                 prefixIcon={Lock}
-                              />                  
+                              />
                             </Box>
                             <Box>
                               <Typography
@@ -236,7 +274,7 @@ export default function LoginAdministration() {
                                 Quên mật khẩu
                               </Typography>
                             </Box>
-                            <FormControlLabel
+                            {/* <FormControlLabel
                               label={
                                 <Typography variant="body2" color='text.secondary'>
                                   Ghi nhớ đăng nhập trên thiết bị này
@@ -245,7 +283,7 @@ export default function LoginAdministration() {
                               control={
                                 <Checkbox checked={remember} onChange={(e) => setRemember(e.target.checked)} />
                               }
-                            />
+                            /> */}
                             <LoadingButton 
                               loading={_loading} 
                               type='submit' 
@@ -253,15 +291,15 @@ export default function LoginAdministration() {
                               fullWidth
                               startIcon={<Login />}
                             >
-                              Đăng nhập nội bộ
+                              Đăng nhập
                             </LoadingButton>
-                            <Box display='flex' justifyContent='space-between' bgcolor="#132d44" borderRadius={1} p={2} gap={1}>
+                            {/* <Box display='flex' justifyContent='space-between' bgcolor="#132d44" borderRadius={1} p={2} gap={1}>
                               <AdminPanelSettings sx={{ color: COLORS.COLOR_DETAIL }}/>
                               <Typography sx={{ color: '#fff' }} variant="body2">
                                 <strong>Yêu cầu xác thực đa yếu tố (MFA)</strong>: Theo chính sách bảo mật nội bộ của công ty, phiên đăng nhập
                                 sẽ yêu cầu xác thực OTP qua mã xác thực được gửi đến email. 
                               </Typography>
-                            </Box>
+                            </Box> */}
                           </Box>
                         </Box>
 

@@ -11,14 +11,15 @@ const Logo = () => {
   if (collapsed) {
     return (
       <Box sx={{ paddingX: '17px', paddingY: '20px' }}>
-        <Typography sx={{ whiteSpace: 'nowrap' }}>TS</Typography>
+        <Typography variant='h6' sx={{ whiteSpace: 'nowrap', color: '#fff' }}>FPT</Typography>
       </Box>
     );
   }
 
   return (
-    <Toolbar sx={{ whiteSpace: 'nowrap' }}>
-      <Typography>Hello World</Typography>
+    <Toolbar sx={{ whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <Typography sx={{ color: '#fff'}} variant='h6'>FPT SMART HOME</Typography>
+      <Typography sx={{ color: '#adaaaa'}} variant='caption'>Quản lý nội bộ FPT</Typography>
     </Toolbar>
   );
 };

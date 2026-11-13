@@ -27,6 +27,8 @@ import { signOut } from '@/services/auth-service';
 import { setIsAuth, setProfile } from '@/slices/auth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { removeAccessToken } from '@/utils/AuthHelper';
+import { getRoleLabel } from '@/utils/labelEntoVni';
+import { COLORS } from '@/constants/colors';
 
 // ==============================|| PROFILE COMPONENT ||============================== //
 
@@ -34,6 +36,7 @@ const Profile = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const profile = useAppSelector((state) => state.auth.profile);
+  
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -68,14 +71,36 @@ const Profile = () => {
         aria-haspopup='true'
         onClick={handleClick}
       >
-        <Stack direction='row' spacing={1.25} alignItems='center' sx={{ p: 0.5 }}>
-          <Avatar
-            alt='profile user'
-            src={avatar1}
-            sx={{ width: 32, height: 32, borderRadius: '100%' }}
-          />
-          <Typography variant='subtitle1'>{profile?.email}</Typography>
-        </Stack>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    p: 2,
+                    borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  <Avatar
+                    src={avatar1}
+                    alt={profile?.fullName}
+                    sx={{ borderRadius: '50%' }}
+                  />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      noWrap
+                      sx={{ color: COLORS.COLOR_DETAIL, fontWeight: 700, fontSize: 16, lineHeight: 1.3 }}
+                    >
+                      {profile?.fullName}
+                    </Typography>
+                    <Typography
+                      noWrap
+                      variant='body2'
+                      sx={{ color: '#9aa4b2', textTransform: 'capitalize' }}
+                    >
+                      {getRoleLabel(profile?.role)}
+                    </Typography>
+                  </Box>
+                </Box>
       </ButtonBase>
       <Popper
         open={open}

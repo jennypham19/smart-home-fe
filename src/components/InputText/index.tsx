@@ -139,6 +139,9 @@ const InputText: React.FC<CustomInputProps> = ({
             ...params,
             sx: {
               mt: mt,
+              '& .MuiInputBase-input': {
+                color: '#fff',
+              },
               '& .MuiOutlinedInput-notchedOutline': {
                 border: '1px solid rgb(53, 50, 50)',
                 borderRadius: '8px',
@@ -349,7 +352,7 @@ const InputText: React.FC<CustomInputProps> = ({
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                     border: from ? "none" : "1px solid rgb(53, 50, 50)",
                 },
-                color: fromNoPassword ? '#fff' : '#000',
+                color: (value || fromNoPassword) ? '#fff' : '#000',
                 // '& .MuiOutlinedInput-input': { color: 'text.primary', py: 1.6 },
                 // bgcolor: bgcolor,
             },

@@ -14,5 +14,18 @@ export const COLORS = {
   NEED_TO_PAY: yellow[600],
   COLOR_DETAIL: '#33E9FD',
   COLOR_PRIMARY: '#2764EB',
-  COLOR_TEXT: '#fff'
+  COLOR_TEXT: '#fff',
+  PRIMARY: '#131B2E'
+};
+
+
+export const C = {
+  bg: '#0B1220',
+  card: '#0A0E17',
+  border: 'rgba(255,255,255,0.08)',
+  cyan: '#4AD1F5',
+  blue: '#2E8BF6',
+  text: '#FFFFFF',
+  textMuted: '#9AA4B2',
+  disabled: '#2A3140',
 };

@@ -7,9 +7,11 @@ import type { SvgIconComponent } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
@@ -25,15 +27,21 @@ import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Logo from './Logo';
 import type { SectionItem } from './Sections';
-import Sections from './Sections';
 import SubMenu from './SubMenu';
 import Scrollbar from '@/components/Scrollbar';
 
 import { MINI_SIDEBAR_WIDTH, SIDEBAR_WIDTH } from '@/constants/layouts';
 import useDerivedState from '@/hooks/useDerivedState';
 import usePrevious from '@/hooks/usePrevious';
-import { useAppSelector } from '@/store';
 import type { MouseEvent } from '@/types/react';
+import { IUser } from '@/types/user';
+import Sidebars from './Sections';
+import { useSidebarTilte } from '@/contexts/SidebarTitleContext';
+import { COLORS } from '@/constants/colors';
+import ProfileSection from './ProfileSection';
+import { useAppSelector } from '@/store';
+import { getRoleLabel } from '@/utils/labelEntoVni';
+import avatar1 from '@/assets/images/users/avatar-1.png';
 
 export const CollapseContext = createContext<boolean | null>(null);
 export const SidebarContext = createContext<boolean | null>(null);
@@ -43,12 +51,14 @@ interface Props {
   collapsed: boolean;
   onCloseSidebar: () => void;
   onToggleCollapsed: () => void;
+  profile?: IUser
 }
 const Sidebar = (props: Props) => {
   const { openSidebar, collapsed, onCloseSidebar, onToggleCollapsed } = props;
   const { pathname } = useLocation();
-  const { t } = useTranslation('section');
-  const sections = useMemo(() => Sections(t), [t]);
+  const { profile } = useAppSelector((state) => state.auth);
+  const sections = useMemo(() => Sidebars(profile?.role ?? ''), [profile?.role]);
+
   const theme = useTheme();
   const prevPathName = usePrevious(pathname);
 
@@ -70,19 +80,62 @@ const Sidebar = (props: Props) => {
       >
         <SidebarContext.Provider value={openSidebar}>
           <CollapseContext.Provider value={collapsed}>
-            <Scrollbar>
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              {/* Logo */}
               <Box
                 sx={{
-                  borderBottom: 'thin solid #E6E8F0',
-                  height: '64px',
+                  minHeight: '80px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                 }}
               >
                 <Logo />
               </Box>
-              {sections.map((section, i) => (
-                <MenuSection key={i} pathname={pathname} {...section} />
-              ))}
-            </Scrollbar>
+
+              {/* Menu */}
+              <Box sx={{ flexGrow: 1, overflow: 'hidden', py: 2 }}>
+                <Scrollbar>
+                  {sections && sections.map((section, i) => (
+                    <MenuSection key={i} pathname={pathname} {...section} />
+                  ))}
+                </Scrollbar>
+              </Box>
+
+              {/* Profile */}
+              {!collapsed && profile && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    p: 2,
+                    borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  <Avatar
+                    src={avatar1}
+                    alt={profile.fullName}
+                    sx={{ width: 48, height: 48 }}
+                  />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      noWrap
+                      sx={{ color: COLORS.COLOR_DETAIL, fontWeight: 700, fontSize: 16, lineHeight: 1.3 }}
+                    >
+                      {profile.fullName}
+                    </Typography>
+                    <Typography
+                      noWrap
+                      variant='body2'
+                      sx={{ color: '#9aa4b2', textTransform: 'capitalize' }}
+                    >
+                      {getRoleLabel(profile.role)}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
           </CollapseContext.Provider>
         </SidebarContext.Provider>
       </CollapsibleDrawer>
@@ -98,13 +151,12 @@ const Sidebar = (props: Props) => {
       sx={{
         zIndex: 999,
       }}
-      PaperProps={{ sx: { width: SIDEBAR_WIDTH, bgcolor: '#fff' } }}
+      PaperProps={{ sx: { width: SIDEBAR_WIDTH, bgcolor: '#000' } }}
     >
       <SidebarContext.Provider value={openSidebar}>
         <CollapseContext.Provider value={false}>
           <Scrollbar sx={{ height: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Logo />
               <IconButton
                 onClick={onToggleCollapsed}
                 edge='start'
@@ -121,8 +173,8 @@ const Sidebar = (props: Props) => {
                 <CloseIcon />
               </IconButton>
             </Box>
-            <Divider sx={{ mb: 1.5 }} />
-            {sections.map((section, i) => (
+            <ProfileSection/>
+            {sections && sections.map((section, i) => (
               <MenuSection key={i} pathname={pathname} {...section} />
             ))}
           </Scrollbar>
@@ -140,6 +192,7 @@ interface MenuSectionProps extends ListProps {
 }
 const MenuSection: FC<MenuSectionProps> = (props) => {
   const { section, pathname, items, ...rest } = props;
+
 
   const collapsed = useContext(CollapseContext);
 
@@ -161,6 +214,7 @@ const MenuSection: FC<MenuSectionProps> = (props) => {
   );
 };
 
+
 // Menu section items
 interface MenuItemsProps {
   items: SectionItem[];
@@ -169,7 +223,6 @@ interface MenuItemsProps {
 }
 const MenuItems = (props: MenuItemsProps) => {
   const { items, pathname, level } = props;
-
   return (
     <List disablePadding>
       {items.reduce<ReactNode[]>((acc, item, i) => {
@@ -243,12 +296,19 @@ const MenuItem: FC<MenuItemProps> = (props) => {
 
   const { pathname } = useLocation();
   const prevPathName = usePrevious(pathname);
+  const { setTitle } = useSidebarTilte();
 
   useEffect(() => {
     if (prevPathName !== pathname && collapsed) {
       setAnchor(null);
     }
   }, [pathname, collapsed, prevPathName]);
+
+  useEffect(() => {
+    if(active && title) {
+      setTitle(title)
+    }
+  }, [active, title, setTitle])
 
   const handleToggle = (): void => {
     setExpanded(!expanded);
@@ -290,13 +350,13 @@ const MenuItem: FC<MenuItemProps> = (props) => {
                 to: path,
               })}
             sx={{
-              color: 'neutral.800',
+              color: '#fff',
               '&:hover': {
-                bgcolor: alpha('#FFFFFF', 0.08),
+                bgcolor: alpha(COLORS.PRIMARY, 0.08),
               },
               ...(active && {
                 color: 'info.main',
-                bgcolor: alpha('#FFFFFF', 0.08),
+                bgcolor: alpha(COLORS.PRIMARY, 0.08),
               }),
             }}
           >
@@ -339,7 +399,7 @@ const MenuItem: FC<MenuItemProps> = (props) => {
           size='medium'
           fullWidth
           sx={{
-            color: 'neutral.800',
+            color: COLORS.PRIMARY,
             p: 1.25,
             pl: `${paddingLeft}px`,
             textAlign: 'left',
@@ -390,15 +450,22 @@ const MenuItem: FC<MenuItemProps> = (props) => {
         size='medium'
         fullWidth
         sx={{
-          color: 'neutral.800',
+          color: '#fff',
           p: 1.25,
           pl: `${paddingLeft}px`,
+          borderRadius: '10px',
+          justifyContent: 'flex-start',
           '&:hover': {
-            bgcolor: alpha('#000', 0.08),
+            color: '#fff',
+            bgcolor: alpha(COLORS.COLOR_DETAIL, 0.12),
           },
           ...(active && {
-            color: 'info.main',
-            bgcolor: '#e6f4ff',
+            color: COLORS.PRIMARY,
+            bgcolor: COLORS.COLOR_DETAIL,
+            fontWeight: 700,
+            '&:hover': {
+              bgcolor: COLORS.COLOR_DETAIL,
+            },
           }),
           flexShrink: 0,
         }}
@@ -426,7 +493,7 @@ const CollapsibleDrawer = styled(Drawer, {
   shouldForwardProp: (prop: string) => !['collapsed'].includes(prop),
 })<{ collapsed: boolean }>(({ theme, collapsed }) => ({
   [`& .${drawerClasses.paper}`]: {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: COLORS.PRIMARY,
     borderRight: '1px solid #f0f0f0',
     color: theme.palette.common.black,
     flexShrink: 0,

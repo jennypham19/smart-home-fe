@@ -18,6 +18,7 @@ import Login from '@/views/Auth/Login';
 import Registration from '@/views/Auth/Registration';
 import { ROUTE_PATH } from '@/constants/routes';
 import AuthGuard from '@/components/AuthGuard';
+import manageRoutes from './Manage';
 
 // Home
 const Home = Loadable(lazy(() => import('@/views/Home')));
@@ -40,17 +41,12 @@ const LoginAdministration = Loadable(lazy(() => import('@/views/AuthAdministrati
 const routes: RouteObject[] = [
   // --- NHÁNH 1: CÁC TRANG ĐƯỢC BẢO VỆ (PRIVATE) ---
   {
-    path: ROUTE_PATH.MANAGE,
+    path: 'manage',
     element: <AuthGuard/>,
     children: [
       {
         element: <DashboardLayout/>,
-        children: [
-          {
-            index: true,
-            element: <Home />
-          }
-        ]
+        children: manageRoutes
       }
     ],
   },
@@ -61,9 +57,14 @@ const routes: RouteObject[] = [
   //   element: <Navigate to="login" replace />,
   // },
 
+  // {
+  //   path: '/',
+  //   element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace />,
+  // },
+
   {
     path: '/',
-    element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace />,
+    element: <Navigate to={`administration/${ROUTE_PATH.LOGIN}`} replace />,
   },
 
   // --- NHÁNH 2: CÁC TRANG TRONG LANDING PAGE
@@ -74,7 +75,7 @@ const routes: RouteObject[] = [
       {
         element: <LandingPageLayout/>,
         children: [
-          { index: true, element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace/>},
+          // { index: true, element: <Navigate to={ROUTE_PATH.DASHBOARD_LANDING} replace/>},
           { path: ROUTE_PATH.DASHBOARD_LANDING, element: <DashboardLandingPage/>},
           { path: ROUTE_PATH.INTRO_LANDING, element: <AboutUsLandingPage/>},
           { path: ROUTE_PATH.CONTACT_LANDING, element: <ContactLandingPage/>},
@@ -112,6 +113,7 @@ const routes: RouteObject[] = [
       {
         element: <AuthAdministrationLayout/>,
         children: [
+          { index: true, element: <Navigate to={ROUTE_PATH.LOGIN} replace/>},
           { path: ROUTE_PATH.LOGIN, element: <LoginAdministration /> },
         ]
       }

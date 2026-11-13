@@ -1,6 +1,6 @@
 import { object, ref, string } from 'yup';
 
-export const usernameValidateSchema = string().required('Email hoặc số điện thoại là bắt buộc');
+export const usernameValidateSchema = string().required('Tài khoản là bắt buộc');
 
 const passwordValidateSchema = string()
   .required('Mật khẩu là bắt buộc')

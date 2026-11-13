@@ -2,6 +2,7 @@ import { SvgIconComponent } from '@mui/icons-material';
 import { TextField, TextFieldProps } from '@mui/material';
 import { ReactNode } from 'react';
 import { Controller, ControllerProps, FieldValues } from 'react-hook-form';
+import { SxProps, Theme, useTheme } from '@mui/material/styles';
 
 type Props<T extends FieldValues> = {
   helperText?: ReactNode;
@@ -10,6 +11,7 @@ type Props<T extends FieldValues> = {
   controllerProps: Omit<ControllerProps<T>, 'render'>;
   prefixIcon?: SvgIconComponent;
   margin?: any
+  sx?: SxProps<Theme>;
 };
 
 export default function ControllerTextField<T extends FieldValues>({
@@ -18,7 +20,8 @@ export default function ControllerTextField<T extends FieldValues>({
   textFieldProps,
   controllerProps,
   prefixIcon: PrefixIcon,
-  margin='normal'
+  margin='normal',
+  sx
 }: Props<T>) {
   return (
     <Controller
@@ -38,6 +41,9 @@ export default function ControllerTextField<T extends FieldValues>({
               startAdornment: PrefixIcon ? <PrefixIcon color='action' sx={{ mr: 1 }} /> : null,
               ...textFieldProps?.slotProps?.input,
             },
+          }}
+          InputProps={{
+            sx: sx
           }}
         />
       )}
