@@ -494,7 +494,7 @@ const CollapsibleDrawer = styled(Drawer, {
 })<{ collapsed: boolean }>(({ theme, collapsed }) => ({
   [`& .${drawerClasses.paper}`]: {
     backgroundColor: COLORS.PRIMARY,
-    borderRight: '1px solid #f0f0f0',
+    borderRight: COLORS.PRIMARY,
     color: theme.palette.common.black,
     flexShrink: 0,
     whiteSpace: 'nowrap',

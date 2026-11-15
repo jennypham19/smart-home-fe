@@ -1,7 +1,7 @@
 export const ROLE = {
   ADMIN: 'admin',
   MANAGER: 'manager',
-  APPLICATION_EMPLOYEE: 'application_employee',
+  APPLICATION_EMPLOYEE: 'application-employee',
   PRODUCTION_EMPLOYEE: 'production-employee',
   EXCHANGE_EMPLOYEE: 'exchange-employee',
 };

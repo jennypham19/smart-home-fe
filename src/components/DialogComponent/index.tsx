@@ -14,7 +14,7 @@ interface Props extends Omit<DialogProps, 'open' | 'fullScreen'> {
   handleClose: () => void;
   children: ReactNode;
   dialogTitle?: string;
-  dialogContentHeight?: string | number;
+  dialogContentHeight?: any;
   showSaveButton?: boolean;
   customButtons?: ReactNode;
   sx?: SxProps<Theme>;

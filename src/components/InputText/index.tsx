@@ -10,6 +10,7 @@ import { IconButton as IconButtonMui, InputAdornment, TextField, TextFieldProps,
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 import { DatePicker, DatePickerProps, DateTimePicker, DateTimePickerProps, TimePicker, TimePickerProps } from '@mui/x-date-pickers';
 import IconButton from './../IconButton/IconButton';
+import { C } from '@/constants/colors';
 
 
 
@@ -139,12 +140,33 @@ const InputText: React.FC<CustomInputProps> = ({
             ...params,
             sx: {
               mt: mt,
+              // Màu chữ giá trị ngày
               '& .MuiInputBase-input': {
                 color: '#fff',
               },
+
+              // Màu icon lịch
+              '& .MuiInputAdornment-root .MuiIconButton-root': {
+                  color: '#fff',
+              },
+
+              // Màu SVG bên trong icon
+              '& .MuiInputAdornment-root .MuiIconButton-root .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
+
+              // Màu icon khi hover
+              '& .MuiInputAdornment-root .MuiIconButton-root:hover .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
+
+              // Màu viền
               '& .MuiOutlinedInput-notchedOutline': {
                 border: '1px solid rgb(53, 50, 50)',
                 borderRadius: '8px',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                border: from ? "none" : "1px solid rgb(53, 50, 50)",
               },
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 border: '1px solid rgb(53, 50, 50)',
@@ -353,8 +375,21 @@ const InputText: React.FC<CustomInputProps> = ({
                     border: from ? "none" : "1px solid rgb(53, 50, 50)",
                 },
                 color: (value || fromNoPassword) ? '#fff' : '#000',
+                // Con trỏ nhập (caret) luôn trắng để thấy được gạch dọc khi click/tab vào ô rỗng
+                caretColor: '#fff',
                 // '& .MuiOutlinedInput-input': { color: 'text.primary', py: 1.6 },
                 // bgcolor: bgcolor,
+
+                // Background khi disabled
+                "&.Mui-disabled": {
+                    backgroundColor: '#c0c0c0',
+                    border: `1px solid rgb(53, 50, 50)`
+                },
+                // Màu chữ khi disabled
+                "&.Mui-disabled .MuiOutlinedInput-input": {
+                    color: "#666",
+                    WebkitTextFillColor: "#666",
+                },
             },
             startAdornment: startAdornment,
             endAdornment: (hasValue && !disabled) ? (

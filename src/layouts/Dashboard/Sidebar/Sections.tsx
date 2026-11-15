@@ -46,6 +46,11 @@ const AdminSidebars = (): Section[] => [
         title: 'Trang chủ',
         path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_HOME}`,
         icon: HomeOutlined        
+      },
+      {
+        title: 'Sản phẩm',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT}`,
+        icon: HomeOutlined
       }
     ]
   }

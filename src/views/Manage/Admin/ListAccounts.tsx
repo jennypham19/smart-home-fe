@@ -6,14 +6,16 @@ import {
   Add,
   ArrowBack,
   BorderColorOutlined,
-  LanguageOutlined,
-  VisibilityOffOutlined,
-  VisibilityOutlined,
 } from '@mui/icons-material';
 
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import { COLORS } from '@/constants/colors';
 import AddAccount from './components/AddAccount';
+import { IUser } from '@/types/user';
+import { getRoleLabel } from '@/utils/labelEntoVni';
+import { useFetchData } from '@/hooks/useFetchData';
+import { getAccounts } from '@/services/user-service';
+import CustomPagination from '@/components/Pagination/CustomPagination';
 
 /* ------------------------------------------------------------------ */
 /* Palette (khớp giao diện tối trong ảnh)                              */
@@ -29,26 +31,6 @@ const C = {
   disabled: '#2A3140',
 };
 
-/* ------------------------------------------------------------------ */
-/* Dữ liệu mẫu                                                         */
-/* ------------------------------------------------------------------ */
-interface Account {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  canAssign: boolean;
-}
-
-const accounts: Account[] = [
-  { id: 1, name: 'Kevil Đặng', role: 'Quản lý cao cấp', email: 'Kevildang@gmail.com', canAssign: true },
-  { id: 2, name: 'Hương Bùi', role: 'Nhân viên nhập đơn', email: 'Huongbui@gmail.com', canAssign: true },
-  { id: 3, name: 'Huy Hoàng', role: 'Nhân viên giao nhận', email: 'Huyhoang@gmail.com', canAssign: false },
-  { id: 4, name: 'Kevil Đặng', role: 'Quản lý cao cấp', email: 'Kevildang@gmail.com', canAssign: true },
-  { id: 5, name: 'Hương Bùi', role: 'Nhân viên nhập đơn', email: 'Huongbui@gmail.com', canAssign: false },
-  { id: 6, name: 'Huy Hoàng', role: 'Nhân viên giao nhận', email: 'Huyhoang@gmail.com', canAssign: false },
-];
-
 /* ================================================================== */
 interface AddAccountProps {
   onBack: () => void;
@@ -57,6 +39,16 @@ interface AddAccountProps {
 const ListAccounts = (props: AddAccountProps) => {
   const { onBack } = props;
   const [typeAccount, setTypeAccount] = useState<{type: string | null, open: boolean}>({ type: null, open: false });
+  const {
+        listData,
+        loading,
+        error,
+        page,
+        rowsPerPage,
+        fetchData,
+        total,
+        handlePageChange,
+  } = useFetchData<IUser>((params) => getAccounts(params), 9);
   const handleOpenTypeAccount = (type: string | null) => {
     if(type === null) return;
     switch (type) {
@@ -136,16 +128,25 @@ const ListAccounts = (props: AddAccountProps) => {
 
       {/* Lưới tài khoản */}
       <Grid container spacing={{ xs: 2, md: 3 }}>
-        {accounts.map((acc) => (
+        {listData.map((acc) => (
           <Grid key={acc.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <AccountCard account={acc} />
           </Grid>
         ))}
       </Grid>
+      <Box mt={1.5}>
+        <CustomPagination
+          page={page}
+          count={total}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+        />
+      </Box>
       {typeAccount.open && typeAccount.type === 'add' && (
         <AddAccount
           open={typeAccount.open}
           onClose={() => handleCloseTypeAccount('add')}
+          fetchData={() => fetchData(page, rowsPerPage)}
         />
       )}
     </Box>
@@ -155,9 +156,7 @@ const ListAccounts = (props: AddAccountProps) => {
 /* ================================================================== */
 /* Card tài khoản                                                     */
 /* ================================================================== */
-const AccountCard = ({ account }: { account: Account }) => {
-  const [show, setShow] = useState(false);
-
+const AccountCard = ({ account }: { account: IUser }) => {
   return (
     <Box
       sx={{
@@ -175,19 +174,19 @@ const AccountCard = ({ account }: { account: Account }) => {
       {/* Phần thông tin */}
       <Stack direction='row' spacing={2} sx={{ mb: 2 }}>
         <Avatar
-          src={avatar1}
-          alt={account.name}
+          src={avatar1 || account.avatarUrl}
+          alt={account.fullName}
           sx={{ width: { xs: 72, md: 75 }, height: { xs: 72, md: 75 }, flexShrink: 0 }}
         />
         <Box sx={{ minWidth: 0, flexGrow: 1 }}>
           <Typography noWrap sx={{ fontWeight: 700, fontSize: { xs: 18, md: 20 } }}>
-            {account.name}
+            {account.fullName}
           </Typography>
           <Typography noWrap sx={{ color: C.textMuted, fontSize: 14, mt: 0.25 }}>
-            {account.role}
+            {getRoleLabel(account.role)}
           </Typography>
           <Typography noWrap sx={{ color: C.textMuted, fontSize: 14 }}>
-            {account.email}
+            {account.phone}
           </Typography>
         </Box>
       </Stack>

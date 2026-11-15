@@ -10,16 +10,18 @@ const CompletedOrder = Loadable(lazy(() => import('@/views/Manage/Manager/Comple
 const ProductionOrder = Loadable(lazy(() => import('@/views/Manage/ProductionOrder/index')));
 const ExchangeOrder = Loadable(lazy(() => import('@/views/Manage/ExchangeOrder/index')));
 const UpdateOrder = Loadable(lazy(() => import('@/views/Manage/UpdateOrder/index')));
+const Product = Loadable(lazy(() => import('@/views/Manage/Product/index')));
 
 const manageRoutes: RouteObject[] = [
     { index: true, element: <Navigate to={ROUTE_PATH.MANAGE_HOME} replace/> },
     { path: ROUTE_PATH.MANAGE_HOME, element: <Home/> },
-    { path: ROUTE_PATH.MANAGE_PRODUCT_APPROVAL, element: <ProductionApproval/> },
-    { path: ROUTE_PATH.MANAGE_EXCHANGE_APPROVAL, element: <ExchangeApproval/> },
-    { path: ROUTE_PATH.MANAGE_COMPLETED_ORDER, element: <CompletedOrder/> },
-    { path: ROUTE_PATH.MANAGE_PRODUCTION_ORDER, element: <ProductionOrder/> },
-    { path: ROUTE_PATH.MANAGE_EXCHANGE_ORDER, element: <ExchangeOrder/> },
-    { path: ROUTE_PATH.MANAGE_UPDATE_ORDER, element: <UpdateOrder/> },
+    { path: ROUTE_PATH.MANAGE_PRODUCT, element: <Product/> },
+    { path: ROUTE_PATH.MANAGE_PRODUCT_APPROVAL, element: <ProductionApproval/> }, // duyệt sản xuất
+    { path: ROUTE_PATH.MANAGE_EXCHANGE_APPROVAL, element: <ExchangeApproval/> }, // duyệt giao nhận
+    { path: ROUTE_PATH.MANAGE_COMPLETED_ORDER, element: <CompletedOrder/> }, // đơn hoàn thành
+    { path: ROUTE_PATH.MANAGE_PRODUCTION_ORDER, element: <ProductionOrder/> }, // đơn sản xuất
+    { path: ROUTE_PATH.MANAGE_EXCHANGE_ORDER, element: <ExchangeOrder/> }, // đơn giao nhận
+    { path: ROUTE_PATH.MANAGE_UPDATE_ORDER, element: <UpdateOrder/> }, 
 ]
 
 export default manageRoutes;

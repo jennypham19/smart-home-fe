@@ -1,9 +1,9 @@
 import { Box } from "@mui/material"
 
-const DashboardApplicationEmployee = () => {
+const DashboardExchangeEmployee = () => {
     return(
-        <Box>Dashboard Nhân viên nhập đơn</Box>
+        <Box>Dashboard Nhân viên giao nhận</Box>
     )
 }
 
-export default DashboardApplicationEmployee;
+export default DashboardExchangeEmployee;

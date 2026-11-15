@@ -21,11 +21,16 @@ export const COLORS = {
 
 export const C = {
   bg: '#0B1220',
-  card: '#0A0E17',
+  surface: '#111A2E',
+  card: '#080b13',
   border: 'rgba(255,255,255,0.08)',
   cyan: '#4AD1F5',
   blue: '#2E8BF6',
   text: '#FFFFFF',
   textMuted: '#9AA4B2',
   disabled: '#2A3140',
+  green: '#22C55E',
+  red: '#EF4444',
+  yellow: '#F5C518',
+  base: '#1FA3E0'
 };

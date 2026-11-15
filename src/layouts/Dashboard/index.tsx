@@ -6,7 +6,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import { useAppSelector } from '@/store';
 import { SidebarTitleContext } from '@/contexts/SidebarTitleContext';
-import { COLORS } from '@/constants/colors';
+import { C, COLORS } from '@/constants/colors';
 
 const DashboardLayout = () => {
   const [openSidebar, setOpenSidebar] = useState<boolean>(false);
@@ -38,6 +38,7 @@ const DashboardLayout = () => {
         )}
         <Box
           sx={{
+            bgcolor: C.bg,
             flexGrow: 1,
             display: 'flex',
             flexDirection: 'column',

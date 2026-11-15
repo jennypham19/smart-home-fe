@@ -19,6 +19,7 @@ export const ROUTE_PATH = {
   // Manage
   MANAGE: '/manage',
   MANAGE_HOME: 'home',
+  MANAGE_PRODUCT: 'san-pham',
   MANAGE_PRODUCT_APPROVAL: 'duyet-san-xuat',
   MANAGE_EXCHANGE_APPROVAL: 'duyet-giao hàng',
   MANAGE_COMPLETED_ORDER: 'don-hoan-thanh',

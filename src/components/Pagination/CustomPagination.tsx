@@ -94,7 +94,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           size="small"
           sx={{ mr: 1 }}
         >
-          <NavigateBefore />
+          <NavigateBefore sx={{ color: '#fff'}} />
         </IconButton>
 
         {pageItems.map((item, index) => {
@@ -107,7 +107,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                   color: 'text.disabled',
                   userSelect: 'none',
                   display: 'inline-block',
-                  lineHeight: '26px'
+                  lineHeight: '26px',
                 }}
                 component="span"
               >
@@ -116,6 +116,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             );
           } else {
             // Page number button
+            
             const pageNumber = item as number;
             const isActive = pageNumber === page;
             return (
@@ -131,7 +132,17 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                   px: '6px',
                   py: '4px',
                   fontWeight: isActive ? 'bold' : 'normal',
-                  adow: isActive ? theme.shadows[2] : 'none',
+                  boxShadow: isActive ? theme.shadows[2] : 'none',
+                  border: '1px solid #fff',
+                  color: '#fff',
+                  // Nút trang active đang bị disabled -> ép lại nền + màu chữ
+                  // để thắng class .Mui-disabled của MUI (nếu không số sẽ trắng trên nền trắng)
+                  '&.Mui-disabled': {
+                    color: '#fff',
+                    bgcolor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.main,
+                    opacity: 1,
+                  },
                 }}
               >
                 {pageNumber}
@@ -147,7 +158,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           size="small"
           sx={{ ml: 1 }}
         >
-          <NavigateNext />
+          <NavigateNext sx={{ color: '#fff' }} />
         </IconButton>
       </Stack>
     </Box>

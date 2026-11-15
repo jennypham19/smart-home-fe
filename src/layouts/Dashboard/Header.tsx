@@ -45,7 +45,7 @@ const Header = (props: Props) => {
         color: 'common.black',
         backgroundColor: COLORS.PRIMARY,
         height: '64px',
-        borderBottom: 'thin solid #E6E8F0',
+        // borderBottom: 'thin solid #E6E8F0',
         marginLeft: 'auto',
         zIndex: 9,
         width: lgUp

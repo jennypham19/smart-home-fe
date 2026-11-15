@@ -5,6 +5,7 @@ import React from 'react';
 import { Chip, CircularProgress, FormControl, FormHelperText, InputLabel, ListSubheader, MenuItem, Select, SelectChangeEvent, SelectProps, SxProps, Theme } from '@mui/material';
 import { ArrowDropDown, ArrowDropUp, Clear } from '@mui/icons-material';
 import { log } from 'console';
+import { C, COLORS } from '@/constants/colors';
 
 
 
@@ -192,8 +193,15 @@ const InputSelect: React.FC<InputSelectProps> = ({
           border: '1px solid rgb(53, 50, 50)',
           borderRadius: '8px',
         },
+        '&:hover .MuiOutlinedInput-notchedOutline': {
+          border: "1px solid rgb(53, 50, 50)",
+        },
         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
           border: '1px solid rgb(53, 50, 50)',
+        },
+        // Màu value đã chọn
+        '& .MuiSelect-select': {
+            color: hasValue ? '#fff' : '#aaa',
         },
         
         ...sx,
@@ -214,11 +222,20 @@ const InputSelect: React.FC<InputSelectProps> = ({
         onChange={handleChange}
         label={label}
         multiple={multiple}
-        IconComponent={() => (
+        IconComponent={() => {
+          const iconSx = {
+              cursor: 'pointer',
+              mr: 1,
+              color: '#fff',
+              '&:hover': {
+                  color: '#fff',
+              },
+          };
+          return (
           hasValue && !disabled ? (
             <Clear
               fontSize="small"
-              sx={{ cursor: 'pointer', mr: 1 }}
+              sx={iconSx}
               onMouseDown={(e) => {
                 e.stopPropagation(); // không mở menu
                 handleClear();
@@ -227,7 +244,7 @@ const InputSelect: React.FC<InputSelectProps> = ({
           ) : open ? (
             <ArrowDropUp
               fontSize="small"
-              sx={{ cursor: 'pointer', mr: 1 }}
+              sx={iconSx}
               onMouseUp={(e) => {
                 setOpen(false)
               }}
@@ -235,13 +252,14 @@ const InputSelect: React.FC<InputSelectProps> = ({
           ) : (
             <ArrowDropDown
               fontSize="small"
-              sx={{ cursor: 'pointer', mr: 1 }}
+              sx={iconSx}
               onMouseDown={(e) => {
                 setOpen(true)
               }}
             />
           )
-        )}
+        )
+        }}
         MenuProps={MenuProps}
         renderValue={(selected) => {
             const isEmpty = multiple

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import LoadingOverlay from '@/components/ProTable/core/LoadingOverlay';
 
-import { getCurrentUser } from '@/services/user-service';
+import { getCurrentUser } from '@/services/auth-service';
 import { setInitApp, setIsAuth } from '@/slices/auth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { FCC } from '@/types/react';

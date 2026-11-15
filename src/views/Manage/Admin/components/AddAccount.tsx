@@ -1,8 +1,11 @@
 import DialogComponent from "@/components/DialogComponent";
+import InputSelect from "@/components/InputSelect";
 import InputText from "@/components/InputText";
 import { C } from "@/constants/colors";
 import useNotification from "@/hooks/useNotification";
 import { uploadImage } from "@/services/upload-service";
+import { createAccount } from "@/services/user-service";
+import { UserPayload } from "@/types/user";
 import { checkPhoneRegext, resizeImage } from "@/utils/common";
 import { Add, PhotoCamera, SettingsBackupRestore } from "@mui/icons-material";
 import { Avatar, Box, Button, Typography } from "@mui/material";
@@ -13,11 +16,13 @@ import { ChangeEvent, useRef, useState } from "react";
 interface AddAccountProps{
     open: boolean,
     onClose: () => void;
+    fetchData: () =>  void;
 }
 
 export interface FormDataUser{
     fullName: string,
     account: string,
+    password: string,
     phone: string,
     email: string,
     receivedJobDate: Dayjs | null,
@@ -30,7 +35,7 @@ type FormErrors = {
 }
 
 const AddAccount = (props: AddAccountProps) => {
-    const { open, onClose } = props;
+    const { open, onClose, fetchData } = props;
     const notify = useNotification();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -39,7 +44,7 @@ const AddAccount = (props: AddAccountProps) => {
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<FormDataUser>({
-        fullName: '', account: '', phone: '', email: '', receivedJobDate: null, role: '', address: ''
+        fullName: '', account: '', password: '', phone: '', email: '', receivedJobDate: null, role: '', address: ''
     })
 
     const reset = () => {
@@ -47,7 +52,7 @@ const AddAccount = (props: AddAccountProps) => {
         setAvatarPreview(null);
         setErrorImage(null);
         setErrors({});
-        setFormData({ fullName: '', account: '', phone: '', email: '', receivedJobDate: null, role: '', address: '' });
+        setFormData({ fullName: '', account: '', password: '', phone: '', email: '', receivedJobDate: null, role: '', address: '' });
     }
 
     const handleClose = () => {
@@ -101,14 +106,15 @@ const AddAccount = (props: AddAccountProps) => {
     const validateForm = () : boolean => {
         const newErrors: FormErrors = {};
         if(!formData.fullName) newErrors.fullName = 'Vui lòng nhập họ tên';
-        if(!formData.account) newErrors.account = 'Vui lòng nhập ngày sinh';
+        if(!formData.account) newErrors.account = 'Vui lòng nhập tài khoản';
         if(!formData.role) newErrors.role = 'Vui lòng chọn chức vụ';
-        // if(!formData.password) newErrors.password = 'Vui lòng nhập mật khẩu';
-        if(!imageFile){
-            setErrorImage("Vui lòng tải lên hình ảnh")
-        };
+        if(!formData.password) newErrors.password = 'Vui lòng nhập mật khẩu';
+        if(!formData.receivedJobDate) newErrors.receivedJobDate = 'Vui lòng chọn ngày nhận việc';
+        // if(!imageFile){
+        //     setErrorImage("Vui lòng tải lên hình ảnh")
+        // };
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0 && !!imageFile
+        return Object.keys(newErrors).length === 0
     }
 
     const handleSubmit = async() => {
@@ -119,11 +125,30 @@ const AddAccount = (props: AddAccountProps) => {
         setIsSubmitting(true);
         try {
             let uploadResponse: any;
-            uploadResponse = await uploadImage(imageFile!, 'users');
-            if(!uploadResponse.success || !uploadResponse.data?.file){
-                throw new Error('Upload ảnh thất bại hoặc không nhận được URL ảnh');
+            if(imageFile != null){
+                uploadResponse = await uploadImage(imageFile!, 'users');
+                if(!uploadResponse.success || !uploadResponse.data?.file){
+                    throw new Error('Upload ảnh thất bại hoặc không nhận được URL ảnh');
+                }                
             }
-
+            const payload: UserPayload = {
+                avatarUrl: uploadResponse ? uploadResponse.data.file.imageUrl : null,
+                fullName: formData.fullName,
+                phone: formData.phone ? formData.phone : null,
+                account: formData.account,
+                password: formData.password,
+                email: formData.email ? formData.email : null,
+                receivedJobDate: formData.receivedJobDate ? formData.receivedJobDate : null,
+                role: formData.role,
+                address: formData.address ? formData.address : null
+            }
+            const res = await createAccount(payload);
+            notify({
+                message: res.message,
+                severity: 'success'
+            })
+            fetchData();
+            handleClose()
         } catch (error: any) {
             notify({
                 message: error.message,
@@ -133,15 +158,16 @@ const AddAccount = (props: AddAccountProps) => {
             setIsSubmitting(false)
         }
     }
+    
 
     return(
         <DialogComponent
             dialogKey={open}
-            handleClose={onClose}
+            handleClose={handleClose}
             sx={{ bgcolor: C.card }}
             isActiveHeader={false}
             isActiveFooter={false}
-            dialogContentHeight={720}
+            dialogContentHeight={Object.keys(errors).length === 0 ? 720 : 850}
         >
             <Grid container spacing={2}>
                     <Grid size={{ xs: 12}} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2.5 }}>
@@ -172,14 +198,29 @@ const AddAccount = (props: AddAccountProps) => {
                             <Typography mt={1} fontSize='13px' color="error">{errorImage}</Typography>
                         )}
                     </Grid>
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Họ và tên</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={'gfdfdgf'}
+                        name="fullName"
+                        value={formData.fullName}
                         type="text"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
+                        margin="dense"
+                        placeholder="Nội dung...."
+                        error={!!errors.fullName}
+                        helperText={errors.fullName}
+
+                    />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Typography sx={{ fontSize: '15px', color: '#fff'}}>Số điện thoại</Typography>
+                    <InputText
+                        label=""
+                        name="phone"
+                        value={formData.phone}
+                        type="text"
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
                     />
@@ -188,34 +229,38 @@ const AddAccount = (props: AddAccountProps) => {
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Tên tài khoản</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={'gfdfdgf'}
+                        name="account"
+                        value={formData.account}
                         type="text"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errors.account}
+                        helperText={errors.account}
                     />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography sx={{ fontSize: '15px', color: '#fff'}}>Số điện thoại</Typography>
+                    <Typography sx={{ fontSize: '15px', color: '#fff'}}>Mật khẩu</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={''}
+                        name="password"
+                        value={formData.password}
                         type="text"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errors.password}
+                        helperText={errors.password}
                     />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Email</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={''}
+                        name="email"
+                        value={formData.email}
                         type="text"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
                     />
@@ -224,34 +269,49 @@ const AddAccount = (props: AddAccountProps) => {
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Ngày nhận việc</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={dayjs()}
+                        name="receivedJobDate"
+                        value={formData.receivedJobDate}
                         type="date"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errors.receivedJobDate}
+                        helperText={errors.receivedJobDate}
                     />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Chức vụ</Typography>
-                    <InputText
+                    <InputSelect
                         label=""
-                        name=""
-                        value={''}
-                        type="text"
-                        onChange={() => {}}
-                        margin="dense"
-                        placeholder="Nội dung...."
+                        name="role"
+                        value={formData.role}
+                        onChange={handleInputChange}
+                        options={[
+                            { id: 1, value: 'manager', label: "Quản lý", },
+                            { id: 2, value: 'application-employee', label: "Nhân viên nhập đơn" },
+                            { id: 3, value: 'production-employee', label: "Nhân viên sản xuất" },
+                            { id: 4, value: 'exchange-employee', label: "Nhân viên giao nhận" }
+                        ]}
+                        transformOptions={(data) =>
+                            data.map((item) => ({
+                                label: item.label,
+                                value: item.value
+                            }))
+                        }
+                        placeholder="Chọn chức vụ"
+                        margin='dense'
+                        error={!!errors.role}
+                        helperText={errors.role}
                     />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Địa chỉ</Typography>
                     <InputText
                         label=""
-                        name=""
-                        value={''}
+                        name="address"
+                        value={formData.address}
                         type="text"
-                        onChange={() => {}}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
                         multiline
@@ -264,6 +324,7 @@ const AddAccount = (props: AddAccountProps) => {
                             bgcolor: C.cyan
                         }}
                         startIcon={<Add/>}
+                        onClick={handleSubmit}
                     >
                         Tạo tài khoản
                     </Button>
@@ -271,6 +332,7 @@ const AddAccount = (props: AddAccountProps) => {
                         variant="outlined"
                         sx={{ border: `1px solid ${C.border}`, color: C.textMuted }}
                         startIcon={<SettingsBackupRestore/>}
+                        onClick={handleClose}
                     >
                         Quay lại
                     </Button>
