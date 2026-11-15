@@ -36,6 +36,10 @@ import {
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import CustomPagination from '@/components/Pagination/CustomPagination';
 import AddProductionOrder from './components/AddProductionOrder';
+import { getOrders, handleGenerateOrderCode } from '@/services/order-service';
+import { useFetchData } from '@/hooks/useFetchData';
+import { IOrder } from '@/types/order';
+import { getOrderStatusColor, getOrderStatusLabel } from '@/utils/labelEntoVni';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -239,7 +243,7 @@ const CardActionButton = ({ btn }: { btn: CardButton }) => {
   );
 };
 
-const ProductionCard = ({ order }: { order: ProductionOrder }) => (
+const ProductionCard = ({ order }: { order: IOrder }) => (
   <Box
     sx={{
       bgcolor: C.surface,
@@ -259,18 +263,18 @@ const ProductionCard = ({ order }: { order: ProductionOrder }) => (
           {order.code}
         </Typography>
         <Typography noWrap sx={{ color: C.text, fontSize: 15 }}>
-          {order.title}
+          {order.name}
         </Typography>
       </Box>
       <Typography sx={{ color: C.green, fontWeight: 700, fontSize: 18 }}>
-        {order.percent}%
+        {order.process}%
       </Typography>
     </Stack>
 
     {/* Progress */}
     <LinearProgress
       variant="determinate"
-      value={order.percent}
+      value={order.process}
       sx={{
         height: 8,
         borderRadius: 999,
@@ -282,9 +286,9 @@ const ProductionCard = ({ order }: { order: ProductionOrder }) => (
 
     {/* Items */}
     <Stack direction='column' spacing={1.25}>
-      {order.items.map((item, i) => (
+      {order.products.map((item, i) => (
         <Stack key={i} direction="row" alignItems="center" spacing={1.25}>
-          {item.done ? (
+          {!!item.isChecked ? (
             <CheckCircle sx={{ color: C.green, fontSize: 20 }} />
           ) : (
             <CheckCircleOutline sx={{ color: C.textMuted, fontSize: 20 }} />
@@ -302,21 +306,21 @@ const ProductionCard = ({ order }: { order: ProductionOrder }) => (
               py: 0.25,
               fontSize: 13,
               // Số lượng 0 tô đỏ cảnh báo
-              color: item.qty === 0 ? C.red : C.text,
+              color: item.quantity === 0 ? C.red : C.text,
             }}
           >
-            {item.qty}
+            {item.quantity}
           </Box>
         </Stack>
       ))}
     </Stack>
 
     {/* Buttons */}
-    <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
+    {/* <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
       {order.buttons.map((btn, i) => (
         <CardActionButton key={i} btn={btn} />
       ))}
-    </Stack>
+    </Stack> */}
   </Box>
 );
 
@@ -348,18 +352,41 @@ const TableActionButton = ({ icon }: { icon: ReactNode }) => (
 const ProductionOrder = () => {
   const [activeCardFilter, setActiveCardFilter] = useState('filter');
   const [activeTableFilter, setActiveTableFilter] = useState('filter');
-  const [page, setPage] = useState(1);
-  const [typeProductionOrder, setTypeProductionOrder] = useState<{ open: boolean, type: string | null }>({ open: false, type: null })
+  const [typeProductionOrder, setTypeProductionOrder] = useState<{ open: boolean, type: string | null }>({ open: false, type: null });
+  const [orderCode, setOrderCode] = useState<{order_code: string}>({order_code: ''});
 
-  const start = (page - 1) * ROWS_PER_PAGE + 1;
-  const end = Math.min(page * ROWS_PER_PAGE, TOTAL_COMPLETED);
+  const {
+    listData,
+    loading,
+    error,
+    page,
+    rowsPerPage,
+    fetchData,
+    total,
+    handlePageChange,
+    handleSearch
+  } = useFetchData<IOrder>((params) => getOrders(params), 5);
+  
+  const handleCreateNewProductionOrder = async () => {
+      try {
+          const response = await handleGenerateOrderCode();
+          const newOrderCode = response.data as any;
+          if (!newOrderCode) {
+              throw new Error('Không lấy được mã đơn hàng');
+          }
 
-    const handleOpenTypeProductionOrder = (type: string | null) => {
+          setOrderCode(newOrderCode);
+
+          // Mở form tạo đơn hàng
+          setTypeProductionOrder({ open: true, type: 'add' })
+      } catch (error) {
+          console.error(error);
+      }
+  };
+
+  const handleOpenTypeProductionOrder = (type: string | null) => {
     if(type === null) return;
     switch (type) {
-      case 'add':
-        setTypeProductionOrder({ open: true, type: 'add' })
-        break;
       case 'edit':
         setTypeProductionOrder({ open: true, type: 'edit' })
         break;
@@ -439,7 +466,7 @@ const ProductionOrder = () => {
             color: '#fff',
             '&:hover': { bgcolor: '#1FA3E0' },
           }}
-          onClick={() => handleOpenTypeProductionOrder('add')}
+          onClick={handleCreateNewProductionOrder}
         >
           Tạo đơn hàng mới
         </Button>
@@ -450,7 +477,7 @@ const ProductionOrder = () => {
         Đơn hàng sản xuất gần đây
       </Typography>
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
-        {productionOrders.map((order) => (
+        {listData.slice(0,3).map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
             <ProductionCard order={order} />
           </Grid>
@@ -459,7 +486,7 @@ const ProductionOrder = () => {
 
       {/* Đơn hàng sản xuất hoàn thành */}
       <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
-        Đơn hàng sản xuất hoàn thành
+        Đơn hàng sản xuất
       </Typography>
 
       <Box
@@ -548,7 +575,7 @@ const ProductionOrder = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {completedOrders.map((row) => (
+              {listData.map((row) => (
                 <TableRow key={row.code} hover sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}>
                   <TableCell sx={{ borderColor: C.border }}>
                     <Checkbox
@@ -564,15 +591,14 @@ const ProductionOrder = () => {
                   <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
                     {row.name}
                   </TableCell>
-                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.qty}</TableCell>
-                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.completion}%</TableCell>
+                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.productQuantity}</TableCell>
+                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.process}%</TableCell>
                   <TableCell sx={{ borderColor: C.border }}>
                     <Chip
-                      label={row.approved ? 'Đã duyệt' : 'Chưa duyệt'}
+                      label={getOrderStatusLabel(row.status)}
+                      color={getOrderStatusColor(row.status).color}
                       size="small"
                       sx={{
-                        bgcolor: row.approved ? C.green : C.red,
-                        color: '#fff',
                         fontWeight: 600,
                         borderRadius: 999,
                       }}
@@ -600,20 +626,27 @@ const ProductionOrder = () => {
           sx={{ pt: 3 }}
         >
           <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-            Hiển thị {start} - {end} của {TOTAL_COMPLETED} đơn hàng
+                  {total === 0
+                    ? 'Hiển thị 0 của 0 nhân sự'
+                    : `Hiển thị ${(page - 1) * rowsPerPage + 1} - ${Math.min(page * rowsPerPage, total)} của ${total} đơn hàng`
+                  }
           </Typography>
           <CustomPagination
             page={page}
-            count={TOTAL_COMPLETED}
-            rowsPerPage={ROWS_PER_PAGE}
-            onPageChange={(newPage) => setPage(newPage)}
+            count={total}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
           />
         </Stack>
       </Box>
       {typeProductionOrder.open && typeProductionOrder.type === 'add' && (
         <AddProductionOrder
           open={typeProductionOrder.open}
-          onClose={() => handleCloseTypeProductionOrder('add')}
+          onClose={() => {
+            handleCloseTypeProductionOrder('add')
+            fetchData(page, rowsPerPage)
+          }}
+          orderCode={orderCode.order_code}
         />
       )}
     </Box>

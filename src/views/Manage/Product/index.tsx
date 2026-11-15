@@ -38,7 +38,9 @@ import { useFetchData } from '@/hooks/useFetchData';
 import { IProduct } from '@/types/product';
 import { getProducts } from '@/services/product-service';
 import Backdrop from '@/components/Backdrop';
-import { getOrderStatusLabel, getStatusProductColor } from '@/utils/labelEntoVni';
+import { getCategoryProductLabel, getOrderStatusLabel, getProductStatusLabel, getStatusProductColor } from '@/utils/labelEntoVni';
+import useAuth from '@/hooks/useAuth';
+import { ROLE } from '@/constants/roles';
 
 /* ------------------------------------------------------------------ */
 /* Dữ liệu mẫu                                                         */
@@ -203,6 +205,7 @@ const TableActionButton = ({ icon }: { icon: ReactNode }) => (
 
 /* ================================================================== */
 const Product = () => {
+  const { profile } = useAuth();
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [typeProduct, setTypeProduct] = useState<{ open: boolean, type: string | null }>({ open: false, type: null })
@@ -256,40 +259,43 @@ const Product = () => {
     <Page title="Sản phẩm">
       <Box sx={{ bgcolor: C.bg, p: { xs: 2, sm: 3, md: 4 } }}>
         {/* Header */}
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          alignItems={{ xs: 'flex-start', sm: 'center' }}
-          justifyContent="space-between"
-          spacing={2}
-          sx={{ mb: 3 }}
-        >
-          <Box>
-            <Typography sx={{ color: C.text, fontSize: { xs: 22, md: 28 }, fontWeight: 700 }}>
-              Quản lý sản phẩm
-            </Typography>
-            <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-              Quản trị kho hàng và thông số kĩ thuật của hệ thống
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            sx={{
-              textTransform: 'none',
-              fontWeight: 600,
-              borderRadius: 2,
-              px: 2.5,
-              py: 1,
-              whiteSpace: 'nowrap',
-              bgcolor: C.cyan,
-              color: C.text,
-              '&:hover': { bgcolor: '#1FA3E0' },
-            }}
-            onClick={() => handleOpenTypeProduct('add')}
+        {profile?.role === ROLE.ADMIN && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            alignItems={{ xs: 'flex-start', sm: 'center' }}
+            justifyContent="space-between"
+            spacing={2}
+            sx={{ mb: 3 }}
           >
-            Thêm sản phẩm mới
-          </Button>
-        </Stack>
+            <Box>
+              <Typography sx={{ color: C.text, fontSize: { xs: 22, md: 28 }, fontWeight: 700 }}>
+                Quản lý sản phẩm
+              </Typography>
+              <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
+                Quản trị kho hàng và thông số kĩ thuật của hệ thống
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                borderRadius: 2,
+                px: 2.5,
+                py: 1,
+                whiteSpace: 'nowrap',
+                bgcolor: C.cyan,
+                color: C.text,
+                '&:hover': { bgcolor: '#1FA3E0' },
+              }}
+              onClick={() => handleOpenTypeProduct('add')}
+            >
+              Thêm sản phẩm mới
+            </Button>
+          </Stack>          
+        )}
+
         {loading && <Backdrop open={loading} />}
         {error && !loading && (
           <Alert severity='error' sx={{ my: 2 }}>{error}</Alert>
@@ -297,13 +303,16 @@ const Product = () => {
         {!loading && !error && (
           <>
             {/* Thẻ thống kê */}
-            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3 }}>
-              {stats.map((stat) => (
-                <Grid key={stat.label} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <StatCard stat={stat} />
-                </Grid>
-              ))}
-            </Grid>
+            {profile?.role === ROLE.ADMIN && (
+              <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3 }}>
+                {stats.map((stat) => (
+                  <Grid key={stat.label} size={{ xs: 12, sm: 6, md: 3 }}>
+                    <StatCard stat={stat} />
+                  </Grid>
+                ))}
+              </Grid>          
+            )}
+
             {/* Bảng */}
             <Box
               sx={{
@@ -365,7 +374,7 @@ const Product = () => {
                             {product.name}
                           </TableCell>
                           <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
-                            {product.category}
+                            {getCategoryProductLabel(product.category)}
                           </TableCell>
                           <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
                             {product.brand}
@@ -373,7 +382,7 @@ const Product = () => {
                           <TableCell sx={{ color: C.text, borderColor: C.border }}>{product.skuCode}</TableCell>
                           <TableCell sx={{ borderColor: C.border }}>
                             <Chip
-                              label={getOrderStatusLabel(product.status)}
+                              label={getProductStatusLabel(product.status)}
                               color={getStatusProductColor(product.status).color}
                               sx={{ fontWeight: 600, borderRadius: 999 }}
                             />
@@ -402,7 +411,10 @@ const Product = () => {
                 sx={{ pt: 3 }}
               >
                 <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-                  Hiển thị {start} - {end} của {TOTAL} dự án
+                  {total === 0
+                    ? 'Hiển thị 0 của 0 nhân sự'
+                    : `Hiển thị ${(page - 1) * rowsPerPage + 1} - ${Math.min(page * rowsPerPage, total)} của ${total} sản phẩm`
+                  }
                 </Typography>
                 <CustomPagination
                   page={page}

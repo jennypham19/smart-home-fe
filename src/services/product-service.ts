@@ -6,7 +6,7 @@ import { ProductPayload } from '@/types/product';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; 
 const prefix = `${API_BASE_URL}/api/products`;
 
-// Tạo tài khoản
+// Tạo thông tin sản phẩm
 export const createProduct = async(payload: ProductPayload) => {
   return HttpClient.post(`${prefix}/product-created`, payload)
 }

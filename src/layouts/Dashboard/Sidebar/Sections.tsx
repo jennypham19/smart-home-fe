@@ -109,7 +109,7 @@ const ApplicationEmployeeSidebars = (): Section[] => [
   }
 ]
 
-// sidebar của nhân viên nhập đơn
+// sidebar của nhân viên sản xuất
 const ProductionEmployeeSidebars = (): Section[] => [
   {
     section: null,
@@ -120,14 +120,9 @@ const ProductionEmployeeSidebars = (): Section[] => [
         icon: HomeOutlined        
       },
       {
-        title: 'Đơn sản xuất',
-        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCTION_ORDER}`,
-        icon: HomeOutlined        
-      },
-      {
-        title: 'Cập nhật đơn',
-        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_UPDATE_ORDER}`,
-        icon: HomeOutlined        
+        title: 'Sản phẩm',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT}`,
+        icon: HomeOutlined
       }
     ]
   }

@@ -17,17 +17,54 @@ export const ROLE_LABELS: { [key in RoleUser]: string } = {
 
 }
 
-export const OrderStatus = {
+export const ProductStatus = {
   IN_STOCK: 'in_stock',
   OUT_OF_STOCK: 'out_of_stock',
   RESTOCKING :"restocking"
 }
 
+export type ProductStatus = typeof ProductStatus[keyof typeof ProductStatus];
+
+export const PRODUCT_STATUS_LABELS: { [key in ProductStatus]: string } = {
+    [ProductStatus.IN_STOCK]: 'Còn hàng',
+    [ProductStatus.OUT_OF_STOCK]: 'Hết hàng',
+    [ProductStatus.RESTOCKING]: 'Chờ nhập hàng',
+}
+
+export const CategoryProduct = {
+  SMART_DEVICE: 'smart_device',
+  ACCESSORY: 'accessory'
+}
+
+export type CategoryProduct = typeof CategoryProduct[keyof typeof CategoryProduct];
+
+export const CATEGORY_PRODUCT_STATUS_LABEL: { [key in CategoryProduct]: string } = {
+  [CategoryProduct.SMART_DEVICE]: 'Thiết bị điện tử',
+  [CategoryProduct.ACCESSORY]: 'Phụ kiện'
+}
+
+export const OrderStatus = {
+  PENDING_PRODUCTION: 'pending_production',
+  IN_PRODUCTION: 'in_production',
+  PRODUCTION_COMPLETED: 'production_completed',
+  PENDING_APPROVAL: 'pending_approval',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  PENDING_MANAGER_APPROVAL: 'pending_manager_approval',
+  MANAGER_APPROVED: 'manager_approved',
+  MANAGER_REJECTED: 'manager_rejected'
+}
+
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
-export const ORDER_STATUS_LABELS: { [key in OrderStatus]: string } = {
-    [OrderStatus.IN_STOCK]: 'Còn hàng',
-    [OrderStatus.OUT_OF_STOCK]: 'Hết hàng',
-    [OrderStatus.RESTOCKING]: 'Chờ nhập hàng',
-
+export const ORDER_STATUS_LABEL: { [key in OrderStatus]: string } = {
+  [OrderStatus.PENDING_PRODUCTION]: "Chờ sản xuất",
+  [OrderStatus.IN_PRODUCTION]: "Đang sản xuất",
+  [OrderStatus.PRODUCTION_COMPLETED]: "Đã sản xuất",
+  [OrderStatus.PENDING_APPROVAL]: 'Chờ duyệt',
+  [OrderStatus.APPROVED]: "Đã duyệt",
+  [OrderStatus.REJECTED]: 'Từ chối',
+  [OrderStatus.PENDING_MANAGER_APPROVAL]: 'Chờ quản lý duyệt',
+  [OrderStatus.MANAGER_APPROVED]: 'Quản lý duyệt',
+  [OrderStatus.MANAGER_REJECTED]: 'Quản lý từ chối'
 }

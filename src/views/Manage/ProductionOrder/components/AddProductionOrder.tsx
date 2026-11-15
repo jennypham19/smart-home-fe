@@ -2,9 +2,12 @@ import DialogComponent from "@/components/DialogComponent";
 import InputSelect from "@/components/InputSelect";
 import InputText from "@/components/InputText";
 import { C, COLORS } from "@/constants/colors";
+import useAuth from "@/hooks/useAuth";
 import useNotification from "@/hooks/useNotification";
+import { createOrder } from "@/services/order-service";
 import { uploadImage } from "@/services/upload-service";
 import { createAccount } from "@/services/user-service";
+import { OrderPayload } from "@/types/order";
 import { UserPayload } from "@/types/user";
 import { checkPhoneRegext, resizeImage } from "@/utils/common";
 import { Add, NewReleases, PhotoCamera, SettingsBackupRestore } from "@mui/icons-material";
@@ -16,21 +19,17 @@ import { ChangeEvent, useRef, useState } from "react";
 interface AddProductionOrderProps{
     open: boolean,
     onClose: () => void;
+    orderCode: string
 }
 
-export interface FormDataUser{
-    fullName: string,
-    account: string,
-    password: string,
-    phone: string,
-    email: string,
-    receivedJobDate: Dayjs | null,
-    role: string,
-    address: string
+export interface FormDataOrder{
+    code: string;
+    name: string;
+    productQuantity: any;
 }
 
 type FormErrors = {
-    [K in keyof FormDataUser]?: string
+    [K in keyof FormDataOrder]?: string
 }
 
 export interface ProductRow {
@@ -40,46 +39,77 @@ export interface ProductRow {
 }
 
 const AddProductionOrder = (props: AddProductionOrderProps) => {
-    const { open, onClose } = props;
+    const { open, onClose, orderCode } = props;
+    const { profile } = useAuth();
     const notify = useNotification();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-    const [errorImage, setErrorImage] = useState<string | null>(null);
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState<FormDataUser>({
-        fullName: '', account: '', password: '', phone: '', email: '', receivedJobDate: null, role: '', address: ''
+    const [formData, setFormData] = useState<FormDataOrder>({
+        code: orderCode, name: '', productQuantity: null
     })
 
     // Số lượng sản phẩm nhập vào + danh sách dòng sản phẩm render động
-    const [productCount, setProductCount] = useState<string>('');
     const [products, setProducts] = useState<ProductRow[]>([]);
 
     const reset = () => {
         setImageFile(null);
-        setAvatarPreview(null);
-        setErrorImage(null);
         setErrors({});
-        setFormData({ fullName: '', account: '', password: '', phone: '', email: '', receivedJobDate: null, role: '', address: '' });
-        setProductCount('');
+        setFormData({ code: '', name: '', productQuantity: null });
         setProducts([]);
     }
 
     // Nhập số lượng -> tạo/bớt số dòng sản phẩm tương ứng (giữ lại dữ liệu đã nhập)
-    const handleProductCountChange = (_name: string, value: any) => {
-        const raw = String(value).replace(/\D/g, ''); // chỉ cho nhập chữ số
-        setProductCount(raw);
-        const n = Math.min(Number(raw) || 0, 50); // giới hạn an toàn
-        setProducts(prev => {
-            const next = [...prev];
-            if (n > prev.length) {
-                for (let i = prev.length; i < n; i++) next.push({ name: '', quantity: '', description: '' });
-            } else {
-                next.length = n;
-            }
-            return next;
-        });
+    // const handleProductCountChange = (_name: string, value: any) => {
+    //     const raw = String(value).replace(/\D/g, ''); // chỉ cho nhập chữ số
+    //     setProductCount(raw);
+    //     const n = Math.min(Number(raw) || 0, 50); // giới hạn an toàn
+    //     setProducts(prev => {
+    //         const next = [...prev];
+    //         if (n > prev.length) {
+    //             for (let i = prev.length; i < n; i++) next.push({ name: '', quantity: '', description: '' });
+    //         } else {
+    //             next.length = n;
+    //         }
+    //         return next;
+    //     });
+    // }
+
+    const handleClose = () => {
+        onClose();
+        reset()
+    }
+
+
+    const handleInputChange = (name: string, value: any) => {
+        const validName = name as keyof FormDataOrder; 
+        if(validName === 'productQuantity'){
+            // Chỉ cho phép nhập số
+            const raw = String(value).replace(/[^0-9]/g, '');
+            setFormData(prev => ({
+                ...prev,
+                productQuantity: raw
+            }))
+            const n = Math.min(Number(raw) || 0, 50); // giới hạn an toàn
+            setProducts(prev => {
+                const next = [...prev];
+                if (n > prev.length) {
+                    for (let i = prev.length; i < n; i++) next.push({ name: '', quantity: '', description: '' });
+                } else {
+                    next.length = n;
+                }
+                return next;
+            });
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [validName]: value
+            }))
+        }
+
+        if(errors[name as keyof typeof errors]){
+            setErrors(prev => ({ ...prev, [name]: undefined}))
+        }
     }
 
     // Cập nhật 1 ô của 1 dòng sản phẩm. name có dạng: prod_{index}_{field}
@@ -89,41 +119,10 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
         setProducts(prev => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
     }
 
-    const handleClose = () => {
-        onClose();
-        reset()
-    }
-
-
-    const handleInputChange = (name: string, value: any) => {
-        const validName = name as keyof FormDataUser; 
-        setFormData(prev => ({ ...prev, [name]: value}));
-
-        if(validName === 'email' && typeof value === 'string'){
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // chuẩn email đơn giản
-            if(!emailRegex.test(value)){
-                setErrors(prev => ({...prev, email: 'Email không hợp lệ'}));
-                return
-            }
-        }
-
-        if(validName === 'phone' && typeof value === 'string'){
-            const phoneError = checkPhoneRegext(value);
-            setErrors(prev => ({...prev, phone: phoneError }));
-        }
-
-        if(errors[name as keyof typeof errors]){
-            setErrors(prev => ({ ...prev, [name]: undefined}))
-        }
-    }
-
     const validateForm = () : boolean => {
         const newErrors: FormErrors = {};
-        if(!formData.fullName) newErrors.fullName = 'Vui lòng nhập họ tên';
-        if(!formData.account) newErrors.account = 'Vui lòng nhập tài khoản';
-        if(!formData.role) newErrors.role = 'Vui lòng chọn chức vụ';
-        if(!formData.password) newErrors.password = 'Vui lòng nhập mật khẩu';
-        if(!formData.receivedJobDate) newErrors.receivedJobDate = 'Vui lòng chọn ngày nhận việc';
+        if(!formData.name) newErrors.name = 'Vui lòng nhập tên đơn hàng';
+        if(!formData.productQuantity) newErrors.productQuantity = 'Vui lòng nhập số lượng sản phẩm';
         // if(!imageFile){
         //     setErrorImage("Vui lòng tải lên hình ảnh")
         // };
@@ -138,25 +137,18 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
 
         setIsSubmitting(true);
         try {
-            let uploadResponse: any;
-            if(imageFile != null){
-                uploadResponse = await uploadImage(imageFile!, 'users');
-                if(!uploadResponse.success || !uploadResponse.data?.file){
-                    throw new Error('Upload ảnh thất bại hoặc không nhận được URL ảnh');
-                }                
+            const payload: OrderPayload = {
+                code: formData.code,
+                name: formData.name,
+                productQuantity: Number(formData.productQuantity),
+                productsOrder: products.map((product) => ({
+                    name: product.name,
+                    quantity: Number(product.quantity),
+                    description: product.description ? product.description : null
+                })),
+                createdBy: profile ? profile?.id : null
             }
-            const payload: UserPayload = {
-                avatarUrl: uploadResponse ? uploadResponse.data.file.imageUrl : null,
-                fullName: formData.fullName,
-                phone: formData.phone ? formData.phone : null,
-                account: formData.account,
-                password: formData.password,
-                email: formData.email ? formData.email : null,
-                receivedJobDate: formData.receivedJobDate ? formData.receivedJobDate : null,
-                role: formData.role,
-                address: formData.address ? formData.address : null
-            }
-            const res = await createAccount(payload);
+            const res = await createOrder(payload);
             notify({
                 message: res.message,
                 severity: 'success'
@@ -224,14 +216,13 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Mã đơn hàng</Typography>
                     <InputText
                         label=""
-                        name="fullName"
-                        value={formData.fullName}
+                        name="code"
+                        value={formData.code}
                         type="text"
                         onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
-                        error={!!errors.fullName}
-                        helperText={errors.fullName}
+                        disabled
 
                     />
                 </Grid>
@@ -239,24 +230,28 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Tên đơn hàng</Typography>
                     <InputText
                         label=""
-                        name="phone"
-                        value={formData.phone}
+                        name="name"
+                        value={formData.name}
                         type="text"
                         onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errors.name}
+                        helperText={errors.name}
                     />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                     <Typography sx={{ fontSize: '15px', color: '#fff'}}>Số lượng sản phẩm</Typography>
                     <InputText
                         label=""
-                        name="productCount"
-                        value={productCount}
+                        name="productQuantity"
+                        value={formData.productQuantity}
                         type="text"
-                        onChange={handleProductCountChange}
+                        onChange={handleInputChange}
                         margin="dense"
                         placeholder="Nhập số lượng sản phẩm...."
+                        error={!!errors.productQuantity}
+                        helperText={errors.productQuantity}
                     />
                 </Grid>
                 {/* ---------------- Danh sách sản phẩm (render động theo số lượng nhập) ---------------- */}
