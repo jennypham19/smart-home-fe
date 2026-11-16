@@ -40,6 +40,7 @@ import { getOrders, handleGenerateOrderCode } from '@/services/order-service';
 import { useFetchData } from '@/hooks/useFetchData';
 import { IOrder } from '@/types/order';
 import { getOrderStatusColor, getOrderStatusLabel } from '@/utils/labelEntoVni';
+import useWebSocket from '@/hooks/useWebSocket';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -364,9 +365,23 @@ const ProductionOrder = () => {
     fetchData,
     total,
     handlePageChange,
-    handleSearch
+    handleSearch,
+    setListData
   } = useFetchData<IOrder>((params) => getOrders(params), 5);
   
+  // Realtime: BE broadcast { event, data } qua ws://<host>/ws (không cần token)
+  useWebSocket({
+    path: "/ws",
+    withToken: false,
+    onMessage: (msg) => {
+      // BE gửi event 'production_orders:updated' kèm snapshot { data, statusCounts } ở msg.data
+      if (msg?.event === "orders:updated" && msg.data) {
+        setListData(msg.data.data as IOrder[])
+      }
+      // event 'connected' và các event khác: bỏ qua
+    },
+  });
+
   const handleCreateNewProductionOrder = async () => {
       try {
           const response = await handleGenerateOrderCode();
@@ -627,7 +642,7 @@ const ProductionOrder = () => {
         >
           <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
                   {total === 0
-                    ? 'Hiển thị 0 của 0 nhân sự'
+                    ? 'Hiển thị 0 của 0 đơn hàng'
                     : `Hiển thị ${(page - 1) * rowsPerPage + 1} - ${Math.min(page * rowsPerPage, total)} của ${total} đơn hàng`
                   }
           </Typography>

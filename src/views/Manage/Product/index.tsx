@@ -41,6 +41,7 @@ import Backdrop from '@/components/Backdrop';
 import { getCategoryProductLabel, getOrderStatusLabel, getProductStatusLabel, getStatusProductColor } from '@/utils/labelEntoVni';
 import useAuth from '@/hooks/useAuth';
 import { ROLE } from '@/constants/roles';
+import useWebSocket from '@/hooks/useWebSocket';
 
 /* ------------------------------------------------------------------ */
 /* Dữ liệu mẫu                                                         */
@@ -218,8 +219,22 @@ const Product = () => {
     fetchData,
     total,
     handlePageChange,
-    handleSearch
+    handleSearch,
+    setListData
   } = useFetchData<IProduct>((params) => getProducts(params),5);
+
+  // Realtime: BE broadcast { event, data } qua ws://<host>/ws (không cần token)
+  useWebSocket({
+    path: "/ws",
+    withToken: false,
+    onMessage: (msg) => {
+      // BE gửi event 'production_orders:updated' kèm snapshot { data, statusCounts } ở msg.data
+      if (msg?.event === "amount_product:updated" && msg.data) {
+        setListData(msg.data.data as IProduct[])
+      }
+      // event 'connected' và các event khác: bỏ qua
+    },
+  });
 
   const handleOpenTypeProduct = (type: string | null) => {
     if(type === null) return;
@@ -252,8 +267,7 @@ const Product = () => {
     fetchData(page, rowsPerPage);
   }
 
-  const start = (page - 1) * ROWS_PER_PAGE + 1;
-  const end = Math.min(page * ROWS_PER_PAGE, TOTAL);
+
 
   return (
     <Page title="Sản phẩm">
@@ -412,7 +426,7 @@ const Product = () => {
               >
                 <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
                   {total === 0
-                    ? 'Hiển thị 0 của 0 nhân sự'
+                    ? 'Hiển thị 0 của 0 sản phẩm'
                     : `Hiển thị ${(page - 1) * rowsPerPage + 1} - ${Math.min(page * rowsPerPage, total)} của ${total} sản phẩm`
                   }
                 </Typography>

@@ -38,7 +38,6 @@ const DashboardLayout = () => {
         )}
         <Box
           sx={{
-            bgcolor: C.bg,
             flexGrow: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -53,7 +52,7 @@ const DashboardLayout = () => {
             onToggleCollapsed={handleToggleCollapsed}
           />
 
-          <Box sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1, bgcolor: COLORS.PRIMARY }}>
             <Outlet />
           </Box>
           <Footer />

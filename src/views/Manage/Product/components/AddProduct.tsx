@@ -9,7 +9,7 @@ import { getOrderStatusLabel } from "@/utils/labelEntoVni";
 import { Add, NewReleases, SettingsBackupRestore } from "@mui/icons-material";
 import { Button, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useState } from "react";
+import {useState } from "react";
 
 interface AddProductProps{
     open: boolean,
@@ -37,6 +37,7 @@ const AddProduct = (props: AddProductProps) => {
     const [formData, setFormData] = useState<FormDataProduct>({
         skuCode: '', name: '', brand: '', amount: null, category: '', status: 'in_stock'
     })
+
     const handleClose = () => {
         onClose()
         setFormData({ skuCode: '', name: '', brand: '', amount: null, category: '', status: 'in_stock' })

@@ -5,16 +5,18 @@ import { C, COLORS } from "@/constants/colors";
 import useAuth from "@/hooks/useAuth";
 import useNotification from "@/hooks/useNotification";
 import { createOrder } from "@/services/order-service";
+import { getAllProduct } from "@/services/product-service";
 import { uploadImage } from "@/services/upload-service";
 import { createAccount } from "@/services/user-service";
 import { OrderPayload } from "@/types/order";
+import { IProduct } from "@/types/product";
 import { UserPayload } from "@/types/user";
 import { checkPhoneRegext, resizeImage } from "@/utils/common";
 import { Add, NewReleases, PhotoCamera, SettingsBackupRestore } from "@mui/icons-material";
 import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2"
 import dayjs, { Dayjs } from "dayjs";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 interface AddProductionOrderProps{
     open: boolean,
@@ -33,6 +35,7 @@ type FormErrors = {
 }
 
 export interface ProductRow {
+    skuCode: string,
     name: string,
     quantity: string,
     description: string
@@ -48,6 +51,17 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
     const [formData, setFormData] = useState<FormDataOrder>({
         code: orderCode, name: '', productQuantity: null
     })
+    const [allProducts, setAllProducts] = useState<IProduct[]>([])
+    useEffect(() => {
+        if(open) {
+            const handleGetAllProducts = async() => {
+                const res = await getAllProduct();
+                const data = res.data as IProduct[];
+                setAllProducts(data);
+            }
+            handleGetAllProducts();
+        }
+    }, [open])
 
     // Số lượng sản phẩm nhập vào + danh sách dòng sản phẩm render động
     const [products, setProducts] = useState<ProductRow[]>([]);
@@ -94,7 +108,7 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
             setProducts(prev => {
                 const next = [...prev];
                 if (n > prev.length) {
-                    for (let i = prev.length; i < n; i++) next.push({ name: '', quantity: '', description: '' });
+                    for (let i = prev.length; i < n; i++) next.push({ skuCode: '', name: '', quantity: '', description: '' });
                 } else {
                     next.length = n;
                 }
@@ -117,6 +131,19 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
         const [, idxStr, field] = name.split('_');
         const index = Number(idxStr);
         setProducts(prev => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
+    }
+
+    // Chọn sản phẩm từ InputSelect: value chính là skuCode (duy nhất),
+    // tra ngược allProducts để lấy đầy đủ cả name + skuCode. name có dạng: prod_{index}
+    const handleProductSelect = (name: string, value: any) => {
+        const [, idxStr] = name.split('_');
+        const index = Number(idxStr);
+        const selected = allProducts.find(p => p.skuCode === value);
+        setProducts(prev => prev.map((p, i) => (
+            i === index
+                ? { ...p, skuCode: value ?? '', name: selected?.name ?? '' }
+                : p
+        )));
     }
 
     const validateForm = () : boolean => {
@@ -142,12 +169,13 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                 name: formData.name,
                 productQuantity: Number(formData.productQuantity),
                 productsOrder: products.map((product) => ({
+                    skuCode: product.skuCode,
                     name: product.name,
                     quantity: Number(product.quantity),
                     description: product.description ? product.description : null
                 })),
                 createdBy: profile ? profile?.id : null
-            }
+            }      
             const res = await createOrder(payload);
             notify({
                 message: res.message,
@@ -260,14 +288,20 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                         <Grid container spacing={2}>
                             <Grid size={{ xs: 12, md: 4 }}>
                                 <Typography sx={{ fontSize: '15px', color: '#fff'}}>Sản phẩm {index + 1}</Typography>
-                                <InputText
+                                <InputSelect
                                     label=""
-                                    name={`prod_${index}_name`}
-                                    value={product.name}
-                                    type="text"
-                                    onChange={handleProductFieldChange}
-                                    margin="dense"
-                                    placeholder="Sản phẩm..."
+                                    name={`prod_${index}`}
+                                    value={product.skuCode}
+                                    onChange={handleProductSelect}
+                                    margin='dense'
+                                    placeholder="Chọn sản phẩm..."
+                                    options={allProducts}
+                                    transformOptions={(data) =>
+                                        data.map((item) => ({
+                                            label: item.name,
+                                            value: item.skuCode
+                                        }))
+                                    }
                                 />
                             </Grid>
                             <Grid size={{ xs: 12, md: 4 }}>

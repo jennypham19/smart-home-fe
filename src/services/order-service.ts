@@ -44,3 +44,31 @@ export const getOrders = async<T>(getParams: GetParams) : Promise<HttpResponse<P
 export const getListOrdersForProductionEmployee = () => {
   return HttpClient.get<any, HttpResponse<any>>(`${prefix}/list-orders-for-production-employee`);
 }
+
+// Lấy danh sách chi tiết đơn hàng theo id
+export const getDetailOrdersWithProducts = (id: string) => {
+  return HttpClient.get<any, HttpResponse<IOrder>>(`${prefix}/detail-orders-with-products/${id}`)
+}
+
+// Tick/untick 1 sản phẩm trong đơn.
+// BE tự trừ/hoàn tồn kho, đổi status, chặn khi hết hàng và trả về order đã cập nhật.
+export const updateProductChecked = (productId: string, isChecked: boolean) => {
+  return HttpClient.patch<{ isChecked: boolean }, HttpResponse<IOrder>>(
+    `${prefix}/products/${productId}/checked`,
+    { isChecked },
+  );
+}
+
+// Hoàn thành đơn hàng
+export const completedOrder = (id: string, status: string) => {
+  return HttpClient.patch<{ status: string}, HttpResponse<IOrder>>(
+    `${prefix}/order-completed/${id}`, { status }
+  )
+}
+
+// Gửi duyệt đơn hàng
+export const sendApprovalOrder = (id: string, status: string) => {
+  return HttpClient.patch<{ status: string}, HttpResponse<IOrder>>(
+    `${prefix}/order-sent-approval/${id}`, { status }
+  )
+}

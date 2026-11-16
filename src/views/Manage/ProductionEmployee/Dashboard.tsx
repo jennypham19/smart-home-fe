@@ -22,6 +22,7 @@ import { getListOrdersForProductionEmployee } from "@/services/order-service";
 import useNotification from "@/hooks/useNotification";
 import useWebSocket from "@/hooks/useWebSocket";
 import PendingPackaging from "./components/PendingPackaging";
+import CompletedOrder from "./components/CompletedOrder";
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -83,7 +84,7 @@ const columns: ColumnConfig[] = [
     key: "in_production",
     title: "Đang đóng hàng",
     iconColor: C.yellow,
-    buttonLabel: "Hoàn thành",
+    buttonLabel: "Tiếp tục đóng đơn",
     buttonIcon: <CheckCircleOutline sx={{ fontSize: 18 }} />,
   },
   {
@@ -266,17 +267,18 @@ const DashboardProductionEmployee = () => {
   });
 
   const groups = orders?.data;
-  console.log("groups: ", groups);
-  
   const counts = orders?.statusCounts;
   // Mở dialog theo key trạng thái + kèm id của đơn được bấm để xem chi tiết
   const handleOpenButton = (type: string, orderId: string) => {
     switch (type) {
-      case 'pending_production':
+      case 'pending_production' :
         setTypeOrder({ open: true, type: 'pending_production', orderId })
         break;
-
-      default:
+      case 'in_production':
+        setTypeOrder({ open: true, type: 'in_production', orderId })
+        break;
+      case 'production_completed':
+         setTypeOrder({ open: true, type: 'production_completed', orderId })
         break;
     }
   }
@@ -286,8 +288,11 @@ const DashboardProductionEmployee = () => {
       case 'pending_production':
         setTypeOrder({ open: false, type: 'pending_production', orderId: null })
         break;
-
-      default:
+      case 'in_production':
+        setTypeOrder({ open: false, type: 'pending_production', orderId: null })
+        break;
+      case 'production_completed':
+        setTypeOrder({ open: false, type: 'production_completed', orderId: null })
         break;
     }
   }
@@ -316,6 +321,20 @@ const DashboardProductionEmployee = () => {
           open={typeOrder.open}
           orderId={typeOrder.orderId}
           onClose={() => handleCloseButton('pending_production')}
+        />
+      )}
+      {typeOrder.open && typeOrder.type === 'in_production' && (
+        <PendingPackaging
+          open={typeOrder.open}
+          orderId={typeOrder.orderId}
+          onClose={() => handleCloseButton('in_production')}
+        />
+      )}
+      {typeOrder.open && typeOrder.type === 'production_completed' && (
+        <CompletedOrder
+          open={typeOrder.open}
+          orderId={typeOrder.orderId}
+          onClose={() => handleCloseButton('production_completed')}
         />
       )}
     </Box>

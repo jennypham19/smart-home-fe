@@ -1,7 +1,7 @@
 import type { HttpResponse } from '@/types/common';
 import HttpClient from '@/utils/HttpClient';
 import { GetParams, PaginatedResponse } from './base-service';
-import { ProductPayload } from '@/types/product';
+import { IProduct, ProductPayload } from '@/types/product';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; 
 const prefix = `${API_BASE_URL}/api/products`;
@@ -31,4 +31,9 @@ export const getProducts = async<T>(getParams: GetParams) : Promise<HttpResponse
   }else{
     throw new Error(response.message || 'Failed to fetch list user');
   }
+}
+
+// Lấy danh sách không phân trang
+export const getAllProduct = async() => {
+  return HttpClient.get<any, HttpResponse<IProduct[]>>(`${prefix}/all-list-products`);
 }

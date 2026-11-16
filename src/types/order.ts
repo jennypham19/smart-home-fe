@@ -4,6 +4,7 @@ export interface OrderPayload {
     productQuantity: any;
     createdBy: string | null,
     productsOrder:{
+        skuCode: string,
         name: string,
         quantity: any,
         description: string | null
