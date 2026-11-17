@@ -72,3 +72,13 @@ export const sendApprovalOrder = (id: string, status: string) => {
     `${prefix}/order-sent-approval/${id}`, { status }
   )
 }
+
+// Lấy toàn bộ đơn hàng theo trạng thái pending_approval (không phân trang)
+export const getAllProductionOrderWithStatus = () => {
+  return HttpClient.get<any, HttpResponse<IOrder[]>>(`${prefix}/list-production-orders-with-status`)
+}
+
+// Gửi duyệt lên quản lý
+export const sendApprovalOrderToManager = (id: string, status: string) => {
+  return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-sent-approval-to-manager/${id}`, { status })
+}

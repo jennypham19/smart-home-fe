@@ -130,7 +130,6 @@ const PendingPackaging = (props: PendingPackagingProps) => {
   const handleComple = async(orderId: string) => {
     setLoading(true);
     try {
-      console.log("orderId: ", orderId);
       const status = 'production_completed'
       const res = await completedOrder(orderId, status);
       notify({

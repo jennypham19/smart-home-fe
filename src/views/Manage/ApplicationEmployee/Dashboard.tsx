@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 
 import {
   Avatar,
@@ -21,6 +21,22 @@ import {
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATH } from '@/constants/routes';
+import useNotification from '@/hooks/useNotification';
+import { getAllProductionOrderWithStatus, sendApprovalOrderToManager } from '@/services/order-service';
+import { IOrder } from '@/types/order';
+import Backdrop from '@/components/Backdrop';
+
+/* ------------------------------------------------------------------ */
+/* Constant button type                          */
+/* ------------------------------------------------------------------ */
+const TYPE_BUTTON = {
+  GUI_DUYET: 'gui-duyet',
+  BAO_LOI: 'bao-loi',
+  GUI_DI: 'gui-di',
+  KIEM_TRA: 'kiem-tra'
+}
+
+
 
 /* ------------------------------------------------------------------ */
 /* Palette (khớp với giao diện tối trong ảnh)                          */
@@ -36,58 +52,10 @@ const C = {
   track: 'rgba(255,255,255,0.12)',
 };
 
-/* ------------------------------------------------------------------ */
-/* Dữ liệu mẫu                                                         */
-/* ------------------------------------------------------------------ */
-type ProductionItem = { name: string; qty: number; done: boolean };
-type ProductionOrder = {
-  code: string;
-  title: string;
-  percent: number;
-  items: ProductionItem[];
-};
-
-const productionOrders: ProductionOrder[] = [
-  {
-    code: 'DH_0001',
-    title: 'Đơn hàng 01',
-    percent: 100,
-    items: [
-      { name: 'Camera SE 3', qty: 2, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 4, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: true },
-      { name: 'Cảm biến khói', qty: 1, done: true },
-      { name: 'Quà tặng: bọc chống xước', qty: 2, done: true },
-    ],
-  },
-  {
-    code: 'DH_0002',
-    title: 'Đơn hàng 02',
-    percent: 40,
-    items: [
-      { name: 'Camera SE 3', qty: 1, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 2, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: false },
-      { name: 'Cảm biến khói', qty: 1, done: false },
-      { name: 'Quà tặng: bọc chống xước', qty: 1, done: false },
-    ],
-  },
-  {
-    code: 'DH_0003',
-    title: 'Đơn hàng 03',
-    percent: 75,
-    items: [
-      { name: 'Camera SE 3', qty: 1, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 1, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: true },
-      { name: 'Cảm biến khói', qty: 2, done: true },
-      { name: 'Quà tặng: bọc chống xước', qty: 1, done: false },
-    ],
-  },
-];
 
 type DeliveryStep = { name: string; done: boolean };
 type DeliveryOrder = {
+  id: string
   code: string;
   title: string;
   steps: DeliveryStep[];
@@ -102,9 +70,9 @@ const deliverySteps = (doneCount: number): DeliveryStep[] =>
   ].map((name, i) => ({ name, done: i < doneCount }));
 
 const deliveryOrders: DeliveryOrder[] = [
-  { code: 'DH_0001', title: 'Đơn hàng 01', steps: deliverySteps(1) },
-  { code: 'DH_0002', title: 'Đơn hàng 02', steps: deliverySteps(1) },
-  { code: 'DH_0003', title: 'Đơn hàng 03', steps: deliverySteps(1) },
+  // { id: 'dfsdfdsfdsf', code: 'DH_0001', title: 'Đơn hàng 01', steps: deliverySteps(1) },
+  // { id: 'dfsdfsdfdsfdsgfgfg', code: 'DH_0002', title: 'Đơn hàng 02', steps: deliverySteps(1) },
+  // { id: 'dfsdrerewerfdsfdsf', code: 'DH_0003', title: 'Đơn hàng 03', steps: deliverySteps(1) },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -174,15 +142,25 @@ const ActionButtons = ({
   primaryIcon,
   secondaryIcon,
   primaryDisabled = false,
+  typePrimary,
+  typeSecondary,
+  onHandle,
+  orderId
 }: {
   primaryLabel: string;
   secondaryLabel: string;
   primaryIcon: ReactNode;
   secondaryIcon: ReactNode;
   primaryDisabled?: boolean;
+  typePrimary: string;
+  typeSecondary: string;
+  orderId: string;
+  onHandle: (type: string, orderId: string) => void;
 }) => (
   <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
     <Button
+      key={typePrimary}
+      onClick={() => onHandle(typePrimary, orderId)}
       fullWidth
       variant="contained"
       startIcon={primaryIcon}
@@ -201,6 +179,8 @@ const ActionButtons = ({
       {primaryLabel}
     </Button>
     <Button
+      key={typeSecondary}
+      onClick={() => onHandle(typeSecondary, orderId)}
       fullWidth
       variant="outlined"
       startIcon={secondaryIcon}
@@ -219,21 +199,22 @@ const ActionButtons = ({
   </Stack>
 );
 
-const ProductionCard = ({ order }: { order: ProductionOrder }) => (
+// Thẻ đơn hàng sản xuất
+const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: string, orderId: string) => void; }) => (
   <CardShell>
     <CardHeader
       code={order.code}
-      title={order.title}
+      title={order.name}
       right={
         <Typography sx={{ color: C.green, fontWeight: 700, fontSize: 18 }}>
-          {order.percent}%
+          {order.process}%
         </Typography>
       }
     />
 
     <LinearProgress
       variant="determinate"
-      value={order.percent}
+      value={order.process}
       sx={{
         height: 8,
         borderRadius: 999,
@@ -244,13 +225,9 @@ const ProductionCard = ({ order }: { order: ProductionOrder }) => (
     />
 
     <Stack direction='column' spacing={1.25}>
-      {order.items.map((item, i) => (
+      {order.products.map((item, i) => (
         <Stack key={i} direction="row" alignItems="center" spacing={1.25}>
-          {item.done ? (
-            <CheckCircle sx={{ color: C.green, fontSize: 20 }} />
-          ) : (
-            <CheckCircleOutline sx={{ color: C.textMuted, fontSize: 20 }} />
-          )}
+          <CheckCircle sx={{ color: C.green, fontSize: 20 }} />
           <Typography sx={{ color: C.text, fontSize: 14, flex: 1, minWidth: 0 }} noWrap>
             {i + 1}. {item.name}
           </Typography>
@@ -266,18 +243,21 @@ const ProductionCard = ({ order }: { order: ProductionOrder }) => (
               fontSize: 13,
             }}
           >
-            {item.qty}
+            {item.quantity}
           </Box>
         </Stack>
       ))}
     </Stack>
 
     <ActionButtons
+      orderId={order.id}
+      typePrimary='gui-duyet'
+      typeSecondary='bao-loi'
       primaryLabel="Gửi duyệt"
       secondaryLabel="Báo lỗi"
       primaryIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
       secondaryIcon={<HighlightOff sx={{ fontSize: 18 }} />}
-      primaryDisabled={order.percent < 100}
+      onHandle={onHandle}
     />
   </CardShell>
 );
@@ -314,7 +294,8 @@ const DeliveryStepper = ({ steps }: { steps: DeliveryStep[] }) => (
   </Stack>
 );
 
-const DeliveryCard = ({ order }: { order: DeliveryOrder }) => (
+// Thẻ đơn hàng giao nhận
+const DeliveryCard = ({ order, onHandle }: { order: DeliveryOrder, onHandle: (type: string, orderId: string) => void; }) => (
   <CardShell>
     <CardHeader code={order.code} title={order.title} />
 
@@ -336,17 +317,101 @@ const DeliveryCard = ({ order }: { order: DeliveryOrder }) => (
     </Stack>
 
     <ActionButtons
+      orderId={order.id}
+      typePrimary='gui-di'
+      typeSecondary='kiem-tra'
       primaryLabel="Gửi đi"
       secondaryLabel="Kiểm tra"
       primaryIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
       secondaryIcon={<QrCodeScannerOutlined sx={{ fontSize: 18 }} />}
+      onHandle={onHandle}
     />
   </CardShell>
 );
 
 /* ================================================================== */
 const DashboardApplicationEmployee = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
+  const notify = useNotification();
+  const [productionOrders, setProductionOrders] = useState<IOrder[]>([])
+  const [orderId, setOrderId] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [
+        productionOrderResponse,
+        // exchangeOrderResponse
+      ] = await Promise.all([
+        getAllProductionOrderWithStatus(),
+        // getAllExchangeOrderWithStatus()
+      ]);
+
+      setProductionOrders(productionOrderResponse?.data || []);
+      // setExchangeOrders(exchangeOrderResponse?.data || []);
+
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+
+      notify({
+        severity: 'error',
+        message: 'Tải dữ liệu dashboard thất bại'
+      });
+    } finally {
+      setLoading(false)
+    }
+  }, [notify]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const onHandlePrimaryButton = (type: string, orderId: string) => {
+    console.log("type: ", type);
+    if(!orderId) return;
+    setOrderId(orderId);
+    console.log("orderId: ", orderId);
+    switch (type) {
+      case TYPE_BUTTON.GUI_DUYET:
+        
+        break;
+      case TYPE_BUTTON.BAO_LOI:
+        // Xử lý báo lỗi
+        break;
+
+      case TYPE_BUTTON.GUI_DI:
+        // Xử lý gửi đi
+        break;
+
+      case TYPE_BUTTON.KIEM_TRA:
+        // Xử lý kiểm tra
+        break;
+    }
+  }
+
+
+  // Phần xử lý và gọi api của các button
+  const sendProductionOrderAprrovalToManager = async() => {
+    setLoading(true);
+    try {
+      const status = 'production_completed'
+      const res = await sendApprovalOrderToManager(orderId, status);
+      notify({
+        message: res.message,
+        severity: 'success'
+      })
+      // handleClose()
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        severity: 'error'
+      })
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -355,12 +420,13 @@ const DashboardApplicationEmployee = () => {
         p: { xs: 2, sm: 3, md: 4 },
       }}
     >
+      {loading && <Backdrop open={loading} />}
       {/* Đơn hàng sản xuất gần đây */}
       <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCTION_ORDER}`)} />
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
-        {productionOrders.map((order) => (
+        {productionOrders.slice(0,3).map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
-            <ProductionCard order={order} />
+            <ProductionCard order={order} onHandle={onHandlePrimaryButton} />
           </Grid>
         ))}
       </Grid>
@@ -370,7 +436,7 @@ const DashboardApplicationEmployee = () => {
       <Grid container spacing={{ xs: 2, md: 3 }}>
         {deliveryOrders.map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
-            <DeliveryCard order={order} />
+            <DeliveryCard order={order} onHandle={onHandlePrimaryButton}/>
           </Grid>
         ))}
       </Grid>

@@ -42,29 +42,6 @@ import { IOrder } from '@/types/order';
 import { getOrderStatusColor, getOrderStatusLabel } from '@/utils/labelEntoVni';
 import useWebSocket from '@/hooks/useWebSocket';
 
-/* ------------------------------------------------------------------ */
-/* Palette                                                             */
-/* ------------------------------------------------------------------ */
-const C = {
-  bg: '#0B1220',
-  surface: '#111A2E',
-  surfaceAlt: '#0E1726',
-  border: 'rgba(255,255,255,0.08)',
-  cyan: '#2FB7F6',
-  text: '#FFFFFF',
-  textMuted: '#9AA4B2',
-  green: '#22C55E',
-  red: '#EF4444',
-  track: 'rgba(255,255,255,0.12)',
-};
-
-/* ------------------------------------------------------------------ */
-/* Dữ liệu mẫu                                                         */
-/* ------------------------------------------------------------------ */
-type BtnKind = 'submit' | 'edit';
-type BtnStyle = 'primary' | 'outlined' | 'disabled';
-type CardButton = { kind: BtnKind; style: BtnStyle };
-
 type ProductionItem = { name: string; qty: number; done: boolean };
 type ProductionOrder = {
   code: string;
@@ -123,24 +100,28 @@ const productionOrders: ProductionOrder[] = [
   },
 ];
 
-type CompletedOrder = {
-  code: string;
-  name: string;
-  qty: number;
-  completion: number;
-  approved: boolean;
+/* ------------------------------------------------------------------ */
+/* Palette                                                             */
+/* ------------------------------------------------------------------ */
+const C = {
+  bg: '#0B1220',
+  surface: '#111A2E',
+  surfaceAlt: '#0E1726',
+  border: 'rgba(255,255,255,0.08)',
+  cyan: '#2FB7F6',
+  text: '#FFFFFF',
+  textMuted: '#9AA4B2',
+  green: '#22C55E',
+  red: '#EF4444',
+  track: 'rgba(255,255,255,0.12)',
 };
 
-const completedOrders: CompletedOrder[] = [
-  { code: 'DH_0001', name: 'Đơn hàng 0001', qty: 5, completion: 100, approved: true },
-  { code: 'DH_0002', name: 'Đơn hàng 0002', qty: 3, completion: 100, approved: false },
-  { code: 'DH_0003', name: 'Đơn hàng 0003', qty: 1, completion: 100, approved: true },
-  { code: 'DH_0004', name: 'Đơn hàng 0004', qty: 2, completion: 100, approved: false },
-  { code: 'DH_0005', name: 'Đơn hàng 0005', qty: 1, completion: 100, approved: true },
-];
-
-const TOTAL_COMPLETED = 12;
-const ROWS_PER_PAGE = 5;
+/* ------------------------------------------------------------------ */
+/* Dữ liệu mẫu                                                         */
+/* ------------------------------------------------------------------ */
+type BtnKind = 'submit' | 'edit';
+type BtnStyle = 'primary' | 'outlined' | 'disabled';
+type CardButton = { kind: BtnKind; style: BtnStyle };
 
 /* ------------------------------------------------------------------ */
 /* Nút lọc dạng chip                                                   */
@@ -317,11 +298,11 @@ const ProductionCard = ({ order }: { order: IOrder }) => (
     </Stack>
 
     {/* Buttons */}
-    {/* <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
-      {order.buttons.map((btn, i) => (
+    <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
+      {/* {order.buttons.map((btn, i) => (
         <CardActionButton key={i} btn={btn} />
-      ))}
-    </Stack> */}
+      ))} */}
+    </Stack>
   </Box>
 );
 
