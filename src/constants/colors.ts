@@ -24,7 +24,7 @@ export const C = {
   surface: '#111A2E',
   card: '#080b13',
   border: 'rgba(255,255,255,0.08)',
-  cyan: '#4AD1F5',
+  cyan: '#2FB7F6',
   blue: '#2E8BF6',
   text: '#FFFFFF',
   textMuted: '#9AA4B2',
@@ -32,5 +32,6 @@ export const C = {
   green: '#22C55E',
   red: '#EF4444',
   yellow: '#F5C518',
-  base: '#1FA3E0'
+  base: '#1FA3E0',
+  track: 'rgba(255,255,255,0.12)',
 };

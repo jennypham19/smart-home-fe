@@ -39,11 +39,40 @@ export const getOrders = async<T>(getParams: GetParams) : Promise<HttpResponse<P
     throw new Error(response.message || 'Failed to fetch list user');
   }
 }
+// Lấy toàn bộ đơn hàng theo trạng thái pending_manager_approval cho role quản lý (Có phân trang)
+export const getOrdersPaginatedWithStatusPendingManagerApproval = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IOrder>>>=> {
+  const url = `${prefix}/orders-paginated-with-status-pending-manager-approval`;
+  const params: Record<string, any> = {
+    page: getParams.page,
+    limit: getParams.limit,
+  }
+  if(getParams.searchTerm && getParams.searchTerm.trim()) {
+    params.searchTerm = getParams.searchTerm
+  };
+  const response = await HttpClient.get<{
+    success: boolean,
+    message: string,
+    data: PaginatedResponse<IOrder>
+  }>(url, { params });
+  
+  if(response.data && response.success && response.data){
+    return response;
+  }else{
+    throw new Error(response.message || 'Failed to fetch list user');
+  }
+}
+
+// Lấy toàn bộ đơn hàng theo trạng thái pending_manager_approval cho role quản lý (không phân trang)
+export const getOrdersWithStatusPendingManagerApproval = () => {
+  return HttpClient.get<any, HttpResponse<IOrder[]>>(`${prefix}/orders-with-status-pending-manager-approval`)
+}
 
 // Lấy danh sách đơn hàng cho nhân viên sản xuất: nhóm theo 3 trạng thái + tổng số lượng từng trạng thái
 export const getListOrdersForProductionEmployee = () => {
   return HttpClient.get<any, HttpResponse<any>>(`${prefix}/list-orders-for-production-employee`);
 }
+
+
 
 // Lấy danh sách chi tiết đơn hàng theo id
 export const getDetailOrdersWithProducts = (id: string) => {
@@ -86,4 +115,9 @@ export const sendApprovalOrderToManager = (id: string, status: string) => {
 // Duyệt bởi nhân viên tạo đơn
 export const approvedByAppEmployee = (id: string, status: string) => {
   return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-approved-by-app-employee/${id}`, { status })
+}
+
+// Duyệt bởi quản lý
+export const approvedByManager = (id: string, status: string) => {
+  return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-approved-by-manager/${id}`, { status })
 }

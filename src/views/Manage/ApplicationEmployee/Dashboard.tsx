@@ -25,6 +25,7 @@ import useNotification from '@/hooks/useNotification';
 import { getAllProductionOrderWithStatus, sendApprovalOrderToManager } from '@/services/order-service';
 import { IOrder } from '@/types/order';
 import Backdrop from '@/components/Backdrop';
+import { C } from '@/constants/colors';
 
 /* ------------------------------------------------------------------ */
 /* Constant button type                          */
@@ -35,23 +36,6 @@ const TYPE_BUTTON = {
   GUI_DI: 'gui-di',
   KIEM_TRA: 'kiem-tra'
 }
-
-
-
-/* ------------------------------------------------------------------ */
-/* Palette (khớp với giao diện tối trong ảnh)                          */
-/* ------------------------------------------------------------------ */
-const C = {
-  bg: '#0B1220',
-  surface: '#111A2E',
-  border: 'rgba(255,255,255,0.08)',
-  cyan: '#2FB7F6',
-  text: '#FFFFFF',
-  textMuted: '#9AA4B2',
-  green: '#22C55E',
-  track: 'rgba(255,255,255,0.12)',
-};
-
 
 type DeliveryStep = { name: string; done: boolean };
 type DeliveryOrder = {
@@ -368,10 +352,8 @@ const DashboardApplicationEmployee = () => {
   }, [fetchDashboardData]);
 
   const onHandlePrimaryButton = (type: string, orderId: string) => {
-    console.log("type: ", type);
     if(!orderId) return;
     setOrderId(orderId);
-    console.log("orderId: ", orderId);
     switch (type) {
       case TYPE_BUTTON.GUI_DUYET:
         sendProductionOrderAprrovalToManager()

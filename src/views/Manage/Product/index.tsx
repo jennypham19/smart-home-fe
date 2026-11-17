@@ -61,32 +61,6 @@ const stats: Stat[] = [
   { label: 'Tương tác tổng', value: '2.110.000', delta: '-10%', up: false, icon: <InsightsOutlined /> },
 ];
 
-type ProductStatus = 'in_stock' | 'out_of_stock' | 'importing';
-type ProductRow = {
-  name: string;
-  category: string;
-  sku: string;
-  status: ProductStatus;
-  quantity: number;
-  interactions: string;
-};
-
-const products: ProductRow[] = [
-  { name: 'Camera FPT SE3S', category: 'Đồ điện tử', sku: '120849', status: 'in_stock', quantity: 1500, interactions: '12.266' },
-  { name: 'Camera FPT SE2S', category: 'Đồ điện tử', sku: '045284', status: 'out_of_stock', quantity: 1000, interactions: '24.326' },
-  { name: 'Công tắc 4 nút bấm', category: 'Phụ kiện', sku: '015737', status: 'out_of_stock', quantity: 200, interactions: '12.357' },
-  { name: 'Công tắc ATHENA 3 nút', category: 'Phụ kiện', sku: '088462', status: 'importing', quantity: 400, interactions: '53.041' },
-  { name: 'Công tắc ATHENA 6 nút', category: 'Phụ kiện', sku: '023568', status: 'in_stock', quantity: 500, interactions: '74.034' },
-];
-
-const statusConfig: Record<ProductStatus, { label: string; bg: string; color: string }> = {
-  in_stock: { label: 'Còn hàng', bg: C.green, color: '#fff' },
-  out_of_stock: { label: 'Hết hàng', bg: C.red, color: '#fff' },
-  importing: { label: 'Đang nhập', bg: C.yellow, color: '#1A1A1A' },
-};
-
-const TOTAL = 12;
-const ROWS_PER_PAGE = 5;
 
 /* ------------------------------------------------------------------ */
 /* Sub-components                                                      */
