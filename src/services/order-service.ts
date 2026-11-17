@@ -82,3 +82,8 @@ export const getAllProductionOrderWithStatus = () => {
 export const sendApprovalOrderToManager = (id: string, status: string) => {
   return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-sent-approval-to-manager/${id}`, { status })
 }
+
+// Duyệt bởi nhân viên tạo đơn
+export const approvedByAppEmployee = (id: string, status: string) => {
+  return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-approved-by-app-employee/${id}`, { status })
+}

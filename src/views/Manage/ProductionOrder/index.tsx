@@ -36,69 +36,14 @@ import {
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import CustomPagination from '@/components/Pagination/CustomPagination';
 import AddProductionOrder from './components/AddProductionOrder';
-import { getOrders, handleGenerateOrderCode } from '@/services/order-service';
+import { approvedByAppEmployee, getOrders, handleGenerateOrderCode } from '@/services/order-service';
 import { useFetchData } from '@/hooks/useFetchData';
 import { IOrder } from '@/types/order';
 import { getOrderStatusColor, getOrderStatusLabel } from '@/utils/labelEntoVni';
 import useWebSocket from '@/hooks/useWebSocket';
-
-type ProductionItem = { name: string; qty: number; done: boolean };
-type ProductionOrder = {
-  code: string;
-  title: string;
-  percent: number;
-  items: ProductionItem[];
-  buttons: CardButton[];
-};
-
-const productionOrders: ProductionOrder[] = [
-  {
-    code: 'DH_0001',
-    title: 'Đơn hàng 01',
-    percent: 100,
-    items: [
-      { name: 'Camera SE 3', qty: 2, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 4, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: true },
-      { name: 'Cảm biến khói', qty: 1, done: true },
-      { name: 'Quà tặng: bọc chống xước', qty: 2, done: true },
-    ],
-    buttons: [
-      { kind: 'submit', style: 'primary' },
-      { kind: 'edit', style: 'disabled' },
-    ],
-  },
-  {
-    code: 'DH_0002',
-    title: 'Đơn hàng 02',
-    percent: 90,
-    items: [
-      { name: 'Camera SE 3', qty: 1, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 2, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: false },
-    ],
-    buttons: [
-      { kind: 'submit', style: 'disabled' },
-      { kind: 'edit', style: 'outlined' },
-    ],
-  },
-  {
-    code: 'DH_0004',
-    title: 'Đơn hàng 04',
-    percent: 30,
-    items: [
-      { name: 'Camera SE 3', qty: 2, done: true },
-      { name: 'Công tắc ATHENA 3', qty: 0, done: true },
-      { name: 'Công tắc LETO 1 nút bấm', qty: 1, done: false },
-      { name: 'Cảm biến khói', qty: 1, done: false },
-      { name: 'Quà tặng: bọc chống xước', qty: 2, done: false },
-    ],
-    buttons: [
-      { kind: 'edit', style: 'primary' },
-      { kind: 'submit', style: 'outlined' },
-    ],
-  },
-];
+import useNotification from '@/hooks/useNotification';
+import Backdrop from '@/components/Backdrop';
+import { OrderStatus } from '@/constants/status';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -161,26 +106,10 @@ const FilterChip = ({
   </Button>
 );
 
-/* ------------------------------------------------------------------ */
-/* Thẻ đơn sản xuất                                                    */
-/* ------------------------------------------------------------------ */
-const cardButtonLabel: Record<BtnKind, string> = {
-  submit: 'Gửi duyệt',
-  edit: 'Chỉnh sửa',
-};
 
-const CardActionButton = ({ btn }: { btn: CardButton }) => {
-  const icon =
-    btn.kind === 'submit' ? (
-      <NearMeOutlined sx={{ fontSize: 18 }} />
-    ) : (
-      <EditOutlined sx={{ fontSize: 18 }} />
-    );
-
+const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, orderId: string) => void }) => {
   const base = {
     fullWidth: true as const,
-    startIcon: icon,
-    children: cardButtonLabel[btn.kind],
     sx: {
       textTransform: 'none',
       fontWeight: 600,
@@ -189,43 +118,37 @@ const CardActionButton = ({ btn }: { btn: CardButton }) => {
     },
   };
 
-  if (btn.style === 'primary') {
+  if (order.process === 100 && order.status === OrderStatus.PENDING_APPROVAL) {
     return (
       <Button
+        onClick={() => onHandleButton('approve', order.id)}
         {...base}
         variant="contained"
-        sx={{ ...base.sx, bgcolor: C.cyan, color: '#fff', '&:hover': { bgcolor: '#1FA3E0' } }}
-      />
+        sx={{ ...base.sx, color: '#fff' }}
+        startIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
+      >
+        Duyệt
+      </Button>
     );
   }
-  if (btn.style === 'disabled') {
+  if (order.process === 0) {
     return (
       <Button
+        onClick={() => onHandleButton('edit', order.id)}
         {...base}
         variant="contained"
-        disabled
         sx={{
           ...base.sx,
-          '&.Mui-disabled': { bgcolor: 'rgba(255,255,255,0.12)', color: C.textMuted },
         }}
-      />
+        startIcon={<EditOutlined sx={{ fontSize: 18 }} />}
+      >
+        Chỉnh sửa
+      </Button>
     );
   }
-  return (
-    <Button
-      {...base}
-      variant="outlined"
-      sx={{
-        ...base.sx,
-        color: C.text,
-        borderColor: C.border,
-        '&:hover': { borderColor: C.textMuted, bgcolor: 'rgba(255,255,255,0.04)' },
-      }}
-    />
-  );
 };
 
-const ProductionCard = ({ order }: { order: IOrder }) => (
+const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, orderId: string) => void }) => (
   <Box
     sx={{
       bgcolor: C.surface,
@@ -299,9 +222,7 @@ const ProductionCard = ({ order }: { order: IOrder }) => (
 
     {/* Buttons */}
     <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
-      {/* {order.buttons.map((btn, i) => (
-        <CardActionButton key={i} btn={btn} />
-      ))} */}
+      <CardActionButton order={order} onHandleButton={onHandleButton}/>
     </Stack>
   </Box>
 );
@@ -336,6 +257,8 @@ const ProductionOrder = () => {
   const [activeTableFilter, setActiveTableFilter] = useState('filter');
   const [typeProductionOrder, setTypeProductionOrder] = useState<{ open: boolean, type: string | null }>({ open: false, type: null });
   const [orderCode, setOrderCode] = useState<{order_code: string}>({order_code: ''});
+  const [orderId, setOrderId] = useState<string>('')
+  const notify = useNotification();
 
   const {
     listData,
@@ -347,7 +270,8 @@ const ProductionOrder = () => {
     total,
     handlePageChange,
     handleSearch,
-    setListData
+    setListData,
+    setLoading
   } = useFetchData<IOrder>((params) => getOrders(params), 5);
   
   // Realtime: BE broadcast { event, data } qua ws://<host>/ws (không cần token)
@@ -407,9 +331,42 @@ const ProductionOrder = () => {
     }
   } 
 
+  const handleButton = (type: string, orderId: string) => {
+    if(!orderId) return;
+    setOrderId(orderId)
+    switch (type) {
+      case 'approve':
+        handleApprovedByAppEmployee()
+        break;
+      case 'edit':
+        break;
+    }
+  }
+
+  const handleApprovedByAppEmployee = async() => {
+    setLoading(true);
+    try {
+      const status = 'approved'
+      const res = await approvedByAppEmployee(orderId, status)
+      notify({
+        message: res.message,
+        severity: 'success'
+      })
+      fetchData(page, rowsPerPage)
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        severity: 'error'
+      }) 
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Box sx={{ bgcolor: C.bg, minHeight: '100%', p: { xs: 2, sm: 3, md: 4 } }}>
       {/* Toolbar trên cùng */}
+      {loading && <Backdrop open={loading} />}
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         alignItems={{ xs: 'stretch', md: 'center' }}
@@ -475,7 +432,7 @@ const ProductionOrder = () => {
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
         {listData.slice(0,3).map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
-            <ProductionCard order={order} />
+            <ProductionCard order={order} onHandleButton={handleButton}/>
           </Grid>
         ))}
       </Grid>

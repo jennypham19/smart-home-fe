@@ -86,6 +86,7 @@ export const useFetchData = <T>(
         rowsPerPage,
         fetchData,
         setPage,
-        setListData
+        setListData,
+        setLoading
     }
 }

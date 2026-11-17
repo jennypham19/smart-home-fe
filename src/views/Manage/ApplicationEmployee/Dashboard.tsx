@@ -374,7 +374,7 @@ const DashboardApplicationEmployee = () => {
     console.log("orderId: ", orderId);
     switch (type) {
       case TYPE_BUTTON.GUI_DUYET:
-        
+        sendProductionOrderAprrovalToManager()
         break;
       case TYPE_BUTTON.BAO_LOI:
         // Xử lý báo lỗi
@@ -395,13 +395,13 @@ const DashboardApplicationEmployee = () => {
   const sendProductionOrderAprrovalToManager = async() => {
     setLoading(true);
     try {
-      const status = 'production_completed'
+      const status = 'pending_manager_approval'
       const res = await sendApprovalOrderToManager(orderId, status);
       notify({
         message: res.message,
         severity: 'success'
       })
-      // handleClose()
+      fetchDashboardData();
     } catch (error: any) {
       notify({
         message: error.message,
