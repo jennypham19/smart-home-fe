@@ -24,6 +24,7 @@ export interface IOrder{
     products: {
         id: string,
         name: string,
+        skuCode: string,
         quantity: any,
         description: string,
         isChecked: boolean,

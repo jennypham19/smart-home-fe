@@ -195,10 +195,9 @@ const ProductionApproval = () => {
     
     const onHandlePrimaryButton = (type: string, orderId: string) => {
         if(!orderId) return;
-        setOrderId(orderId)
         switch (type) {
             case 'gui-duyet':
-                handleApprovedByManager()
+                handleApprovedByManager(orderId)
                 break;
         
             default:
@@ -206,10 +205,10 @@ const ProductionApproval = () => {
         }
     }
 
-    const handleApprovedByManager = async() => {
+    const handleApprovedByManager = async(orderId: string) => {
         setLoading(true);
         try {
-        const status = 'manager_approved'
+        const status = 'pending_production'
         const res = await approvedByManager(orderId, status)
         notify({
             message: res.message,

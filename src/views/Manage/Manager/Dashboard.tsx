@@ -1,6 +1,6 @@
 import { C } from "@/constants/colors";
 import useNotification from "@/hooks/useNotification";
-import { getOrdersWithStatusPendingManagerApproval } from "@/services/order-service";
+import { approvedByManager, getOrdersWithStatusPendingManagerApproval } from "@/services/order-service";
 import { IOrder } from "@/types/order";
 import { ArrowForward, CheckCircle, CheckCircleOutline, HighlightOff, NearMeOutlined } from "@mui/icons-material";
 import { Avatar, Box, Button, LinearProgress, Stack, Typography } from "@mui/material"
@@ -203,6 +203,7 @@ const DashboardManager= () => {
     const notify = useNotification();
     const [productionOrders, setProductionOrders] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(false);
+    const [orderId, setOrderId] = useState<string>('')
 
     const fetchDashboardData = useCallback(async () => {
         setLoading(true)
@@ -235,8 +236,37 @@ const DashboardManager= () => {
     }, [fetchDashboardData]);
 
     const onHandlePrimaryButton = (type: string, orderId: string) => {
+        console.log("orderId: ", orderId);
+        if(!orderId) return;
+        switch (type) {
+            case 'gui-duyet':
+                handleApprovedByManager(orderId)
+                break;
         
+            default:
+                break;
+        }
     }
+
+  const handleApprovedByManager = async(orderId: string) => {
+        setLoading(true);
+        try {
+        const status = 'pending_production'
+        const res = await approvedByManager(orderId, status)
+        notify({
+            message: res.message,
+            severity: 'success'
+        })
+        fetchDashboardData()
+        } catch (error: any) {
+        notify({
+            message: error.message,
+            severity: 'error'
+        }) 
+        } finally {
+        setLoading(false)
+        }
+  }
     return(
         <Box
             sx={{

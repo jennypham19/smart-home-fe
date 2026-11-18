@@ -257,7 +257,7 @@ const CompletedOrder = (props: CompletedOrderProps) => {
 
           {/* Hành động */}
           <Stack direction="row" spacing={1.5} sx={{ mt: 3 }}>
-            <Button
+            {/* <Button
               fullWidth
               startIcon={<CheckCircleOutline />}
               onClick={() => orderId && handleSendApproval(orderId)}
@@ -272,7 +272,7 @@ const CompletedOrder = (props: CompletedOrderProps) => {
               }}
             >
               Gửi duyệt
-            </Button>
+            </Button> */}
             <Button
               fullWidth
               startIcon={<ReplyOutlined />}

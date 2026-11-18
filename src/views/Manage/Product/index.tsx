@@ -247,7 +247,7 @@ const Product = () => {
     <Page title="Sản phẩm">
       <Box sx={{ bgcolor: C.bg, p: { xs: 2, sm: 3, md: 4 } }}>
         {/* Header */}
-        {profile?.role === ROLE.ADMIN && (
+        {profile?.role !== ROLE.EXCHANGE_EMPLOYEE && (
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -291,7 +291,7 @@ const Product = () => {
         {!loading && !error && (
           <>
             {/* Thẻ thống kê */}
-            {profile?.role === ROLE.ADMIN && (
+            {profile?.role !== ROLE.EXCHANGE_EMPLOYEE && (
               <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3 }}>
                 {stats.map((stat) => (
                   <Grid key={stat.label} size={{ xs: 12, sm: 6, md: 3 }}>

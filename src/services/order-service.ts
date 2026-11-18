@@ -121,3 +121,8 @@ export const approvedByAppEmployee = (id: string, status: string) => {
 export const approvedByManager = (id: string, status: string) => {
   return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-approved-by-manager/${id}`, { status })
 }
+
+// Chỉnh sửa lại đơn hàng
+export const updateOrderWithProduct = async(id: string, payload: OrderPayload) => {
+    return HttpClient.put(`${prefix}/order-with-products-updated/${id}`, payload as any);
+}

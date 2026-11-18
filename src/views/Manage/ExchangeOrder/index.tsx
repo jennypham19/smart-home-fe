@@ -62,9 +62,9 @@ const deliverySteps = (doneCount: number): DeliveryStep[] =>
   ].map((name, i) => ({ name, done: i < doneCount }));
 
 const deliveryOrders: DeliveryOrder[] = [
-  { code: 'DH_0001', title: 'Đơn hàng 01', steps: deliverySteps(1) },
-  { code: 'DH_0002', title: 'Đơn hàng 02', steps: deliverySteps(1) },
-  { code: 'DH_0003', title: 'Đơn hàng 03', steps: deliverySteps(1) },
+  // { code: 'DH_0001', title: 'Đơn hàng 01', steps: deliverySteps(1) },
+  // { code: 'DH_0002', title: 'Đơn hàng 02', steps: deliverySteps(1) },
+  // { code: 'DH_0003', title: 'Đơn hàng 03', steps: deliverySteps(1) },
 ];
 
 type CompletedOrder = {
@@ -76,10 +76,10 @@ type CompletedOrder = {
 };
 
 const completedOrders: CompletedOrder[] = [
-  { code: 'DH_0004', name: 'Đơn hàng 0004', qty: 2, completion: 100, success: false },
-  { code: 'DH_0005', name: 'Đơn hàng 0005', qty: 1, completion: 100, success: false },
-  { code: 'DH_0008', name: 'Đơn hàng 0008', qty: 2, completion: 100, success: true },
-  { code: 'DH_0003', name: 'Đơn hàng 0003', qty: 1, completion: 100, success: true },
+  // { code: 'DH_0004', name: 'Đơn hàng 0004', qty: 2, completion: 100, success: false },
+  // { code: 'DH_0005', name: 'Đơn hàng 0005', qty: 1, completion: 100, success: false },
+  // { code: 'DH_0008', name: 'Đơn hàng 0008', qty: 2, completion: 100, success: true },
+  // { code: 'DH_0003', name: 'Đơn hàng 0003', qty: 1, completion: 100, success: true },
 ];
 
 const TOTAL_COMPLETED = 12;

@@ -36,7 +36,7 @@ export const getOrderStatusColor = (status: string | null) => {
   switch (status) {
     case OrderStatus.REJECTED || OrderStatus.MANAGER_REJECTED:
       return { color: 'error' as const };
-    case OrderStatus.PENDING_PRODUCTION || OrderStatus.PENDING_APPROVAL || OrderStatus.PENDING_MANAGER_APPROVAL:
+    case (OrderStatus.PENDING_PRODUCTION || OrderStatus.PENDING_APPROVAL || OrderStatus.PENDING_MANAGER_APPROVAL):
       return { color: 'warning' as const };
     case OrderStatus.IN_PRODUCTION: 
       return { color: 'primary' as const}

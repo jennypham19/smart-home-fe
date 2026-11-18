@@ -167,7 +167,35 @@ const AddAccount = (props: AddAccountProps) => {
             sx={{ bgcolor: C.card }}
             isActiveHeader={false}
             isActiveFooter={false}
-            dialogContentHeight={Object.keys(errors).length === 0 ? 720 : 850}
+            dialogContentHeight={720}
+            // Khi nội dung tràn height và xuất hiện scroll: nền paper theo C.card + thu nhỏ thanh cuộn
+            PaperProps={{
+                sx: {
+                    bgcolor: C.card,
+                    // Firefox
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: `rgba(255,255,255,0.25) ${C.card}`,
+                    '&, & *': {
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: `rgba(255,255,255,0.25) ${C.card}`,
+                    },
+                    // Chrome / Edge / Safari
+                    '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
+                        width: '6px',
+                        height: '6px',
+                    },
+                    '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
+                        backgroundColor: C.card,
+                    },
+                    '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+                        backgroundColor: 'rgba(255,255,255,0.25)',
+                        borderRadius: '8px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.4)',
+                    },
+                },
+            }}
         >
             <Grid container spacing={2}>
                     <Grid size={{ xs: 12}} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2.5 }}>

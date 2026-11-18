@@ -30,7 +30,7 @@ export interface FormDataOrder{
     productQuantity: any;
 }
 
-type FormErrors = {
+export type FormErrors = {
     [K in keyof FormDataOrder]?: string
 }
 

@@ -31,7 +31,7 @@ import { C } from '@/constants/colors';
 /* Constant button type                          */
 /* ------------------------------------------------------------------ */
 const TYPE_BUTTON = {
-  GUI_DUYET: 'gui-duyet',
+  NHAP_THONG_TIN: 'nhap-thong-tin',
   BAO_LOI: 'bao-loi',
   GUI_DI: 'gui-di',
   KIEM_TRA: 'kiem-tra'
@@ -132,12 +132,12 @@ const ActionButtons = ({
   orderId
 }: {
   primaryLabel: string;
-  secondaryLabel: string;
+  secondaryLabel?: string;
   primaryIcon: ReactNode;
-  secondaryIcon: ReactNode;
+  secondaryIcon?: ReactNode;
   primaryDisabled?: boolean;
   typePrimary: string;
-  typeSecondary: string;
+  typeSecondary?: string;
   orderId: string;
   onHandle: (type: string, orderId: string) => void;
 }) => (
@@ -162,7 +162,7 @@ const ActionButtons = ({
     >
       {primaryLabel}
     </Button>
-    <Button
+    {/* <Button
       key={typeSecondary}
       onClick={() => onHandle(typeSecondary, orderId)}
       fullWidth
@@ -179,7 +179,7 @@ const ActionButtons = ({
       }}
     >
       {secondaryLabel}
-    </Button>
+    </Button> */}
   </Stack>
 );
 
@@ -235,12 +235,9 @@ const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: s
 
     <ActionButtons
       orderId={order.id}
-      typePrimary='gui-duyet'
-      typeSecondary='bao-loi'
-      primaryLabel="Gửi duyệt"
-      secondaryLabel="Báo lỗi"
+      typePrimary='nhap-thong-tin'
+      primaryLabel="Nhập thông tin"
       primaryIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
-      secondaryIcon={<HighlightOff sx={{ fontSize: 18 }} />}
       onHandle={onHandle}
     />
   </CardShell>
@@ -355,7 +352,7 @@ const DashboardApplicationEmployee = () => {
     if(!orderId) return;
     setOrderId(orderId);
     switch (type) {
-      case TYPE_BUTTON.GUI_DUYET:
+      case TYPE_BUTTON.NHAP_THONG_TIN:
         sendProductionOrderAprrovalToManager()
         break;
       case TYPE_BUTTON.BAO_LOI:
@@ -375,23 +372,23 @@ const DashboardApplicationEmployee = () => {
 
   // Phần xử lý và gọi api của các button
   const sendProductionOrderAprrovalToManager = async() => {
-    setLoading(true);
-    try {
-      const status = 'pending_manager_approval'
-      const res = await sendApprovalOrderToManager(orderId, status);
-      notify({
-        message: res.message,
-        severity: 'success'
-      })
-      fetchDashboardData();
-    } catch (error: any) {
-      notify({
-        message: error.message,
-        severity: 'error'
-      })
-    } finally {
-      setLoading(false);
-    }
+    // setLoading(true);
+    // try {
+    //   const status = 'pending_manager_approval'
+    //   const res = await sendApprovalOrderToManager(orderId, status);
+    //   notify({
+    //     message: res.message,
+    //     severity: 'success'
+    //   })
+    //   fetchDashboardData();
+    // } catch (error: any) {
+    //   notify({
+    //     message: error.message,
+    //     severity: 'error'
+    //   })
+    // } finally {
+    //   setLoading(false);
+    // }
   }
 
   return (
@@ -403,8 +400,8 @@ const DashboardApplicationEmployee = () => {
       }}
     >
       {loading && <Backdrop open={loading} />}
-      {/* Đơn hàng sản xuất gần đây */}
-      <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCTION_ORDER}`)} />
+      {/* Đơn hàng đã sản xuất */}
+      <SectionHeader title="Đơn hàng đã sản xuất" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCTION_ORDER}`)} />
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
         {productionOrders.slice(0,3).map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>

@@ -104,6 +104,11 @@ const ApplicationEmployeeSidebars = (): Section[] => [
         title: 'Đơn giao nhận',
         path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_EXCHANGE_ORDER}`,
         icon: HomeOutlined        
+      },
+      {
+        title: 'Sản phẩm',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT}`,
+        icon: HomeOutlined
       }
     ]
   }

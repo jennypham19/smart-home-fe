@@ -44,6 +44,8 @@ import useWebSocket from '@/hooks/useWebSocket';
 import useNotification from '@/hooks/useNotification';
 import Backdrop from '@/components/Backdrop';
 import { OrderStatus } from '@/constants/status';
+import ViewProductionOrder from './components/ViewProductionOrder';
+import EditProductionOrder from './components/EditProductionOrder';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -107,7 +109,7 @@ const FilterChip = ({
 );
 
 
-const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, orderId: string) => void }) => {
+const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, order: IOrder) => void }) => {
   const base = {
     fullWidth: true as const,
     sx: {
@@ -118,23 +120,23 @@ const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleBu
     },
   };
 
-  if (order.process === 100 && order.status === OrderStatus.PENDING_APPROVAL) {
+  if (order.process === 100) {
     return (
       <Button
-        onClick={() => onHandleButton('approve', order.id)}
+        onClick={() => onHandleButton('approve', order)}
         {...base}
         variant="contained"
         sx={{ ...base.sx, color: '#fff' }}
         startIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
       >
-        Duyệt
+        Nhập thông tin
       </Button>
     );
   }
   if (order.process === 0) {
     return (
       <Button
-        onClick={() => onHandleButton('edit', order.id)}
+        onClick={() => onHandleButton('edit', order)}
         {...base}
         variant="contained"
         sx={{
@@ -148,7 +150,7 @@ const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleBu
   }
 };
 
-const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, orderId: string) => void }) => (
+const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButton: (type: string, order: IOrder) => void }) => (
   <Box
     sx={{
       bgcolor: C.surface,
@@ -230,8 +232,9 @@ const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButt
 /* ------------------------------------------------------------------ */
 /* Nút thao tác trong bảng                                             */
 /* ------------------------------------------------------------------ */
-const TableActionButton = ({ icon }: { icon: ReactNode }) => (
+const TableActionButton = ({ icon, onHandleOpenButton }: { icon: ReactNode, onHandleOpenButton: () => void }) => (
   <Box
+    onClick={onHandleOpenButton}
     component="button"
     sx={{
       width: 34,
@@ -259,6 +262,7 @@ const ProductionOrder = () => {
   const [orderCode, setOrderCode] = useState<{order_code: string}>({order_code: ''});
   const [orderId, setOrderId] = useState<string>('')
   const notify = useNotification();
+  const [order, setOrder] = useState<IOrder | null>(null);
 
   const {
     listData,
@@ -304,8 +308,9 @@ const ProductionOrder = () => {
       }
   };
 
-  const handleOpenTypeProductionOrder = (type: string | null) => {
+  const handleOpenTypeProductionOrder = (type: string | null, order: IOrder) => {
     if(type === null) return;
+    setOrder(order)
     switch (type) {
       case 'edit':
         setTypeProductionOrder({ open: true, type: 'edit' })
@@ -331,35 +336,14 @@ const ProductionOrder = () => {
     }
   } 
 
-  const handleButton = (type: string, orderId: string) => {
-    if(!orderId) return;
-    setOrderId(orderId)
+  const handleButton = (type: string, order: IOrder) => {
+    setOrder(order);
     switch (type) {
       case 'approve':
-        handleApprovedByAppEmployee()
         break;
       case 'edit':
+        setTypeProductionOrder({ open: true, type: 'edit' })
         break;
-    }
-  }
-
-  const handleApprovedByAppEmployee = async() => {
-    setLoading(true);
-    try {
-      const status = 'approved'
-      const res = await approvedByAppEmployee(orderId, status)
-      notify({
-        message: res.message,
-        severity: 'success'
-      })
-      fetchData(page, rowsPerPage)
-    } catch (error: any) {
-      notify({
-        message: error.message,
-        severity: 'error'
-      }) 
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -458,7 +442,7 @@ const ProductionOrder = () => {
           spacing={2}
           sx={{ mb: 2 }}
         >
-          <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: { xs: 1, md: 0 } }}>
+          {/* <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: { xs: 1, md: 0 } }}>
             <FilterChip
               icon={<FilterList sx={{ fontSize: 18 }} />}
               label="Bộ lọc"
@@ -477,7 +461,7 @@ const ProductionOrder = () => {
               active={activeTableFilter === 'approved'}
               onClick={() => setActiveTableFilter('approved')}
             />
-          </Stack>
+          </Stack> */}
 
           <Box
             sx={{
@@ -559,9 +543,16 @@ const ProductionOrder = () => {
                   </TableCell>
                   <TableCell align="center" sx={{ borderColor: C.border }}>
                     <Stack direction="row" spacing={1} justifyContent="center">
-                      <TableActionButton icon={<VisibilityOutlined fontSize="small" />} />
-                      <TableActionButton icon={<EditOutlined fontSize="small" />} />
-                      <TableActionButton icon={<DeleteOutline fontSize="small" />} />
+                      <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('view', row)} icon={<VisibilityOutlined fontSize="small" />} />
+                      {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
+                      <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
+                      )}
+                      {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
+                        <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
+                      )}
+                      {row.status === OrderStatus.PRODUCTION_COMPLETED && (
+                        <TableActionButton onHandleOpenButton={() => {}} icon={<NearMeOutlined fontSize='small'/>} />
+                      )}
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -600,6 +591,20 @@ const ProductionOrder = () => {
             fetchData(page, rowsPerPage)
           }}
           orderCode={orderCode.order_code}
+        />
+      )}
+      {typeProductionOrder.open && typeProductionOrder.type === 'view' && order && (
+        <ViewProductionOrder
+          open={typeProductionOrder.open}
+          onClose={() => handleCloseTypeProductionOrder('view')}
+          order={order}
+        />
+      )}
+      {typeProductionOrder.open && typeProductionOrder.type === 'edit' && order && (
+        <EditProductionOrder
+          open={typeProductionOrder.open}
+          onClose={() => handleCloseTypeProductionOrder('edit')}
+          order={order}
         />
       )}
     </Box>

@@ -15,6 +15,7 @@ import {
   LockOutlined,
   NearMeOutlined,
   ShoppingBagOutlined,
+  Visibility,
 } from "@mui/icons-material";
 
 import avatar1 from "@/assets/images/users/avatar-1.png";
@@ -91,8 +92,8 @@ const columns: ColumnConfig[] = [
     key: "production_completed",
     title: "Đơn hoàn thành",
     iconColor: C.green,
-    buttonLabel: "Gửi duyệt",
-    buttonIcon: <NearMeOutlined sx={{ fontSize: 18 }} />,
+    buttonLabel: "Xem chi tiết",
+    buttonIcon: <Visibility sx={{ fontSize: 18 }} />,
   },
 ];
 
