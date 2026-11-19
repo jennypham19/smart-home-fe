@@ -83,5 +83,6 @@ export const useDataList = <T>(
         page,
         rowsPerPage,
         fetchData,
+        setLoading
     }
 }

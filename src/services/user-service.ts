@@ -1,5 +1,5 @@
 import type { HttpResponse } from '@/types/common';
-import { IUser, UserPayload } from '@/types/user';
+import { IUser, UserPayload, UserUpdatePayload } from '@/types/user';
 import HttpClient from '@/utils/HttpClient';
 import { PaginatedResponse } from './base-service';
 
@@ -16,6 +16,16 @@ export interface GetParams{
 // Tạo tài khoản
 export const createAccount = async(payload: UserPayload) => {
   return HttpClient.post(`${prefix}/user-account-created`, payload)
+}
+
+// Chỉnh sửa tài khoản
+export const updateAccount = async(id: string, payload: UserUpdatePayload) => {
+    return HttpClient.put(`${prefix}/user-account-updated/${id}`, payload as any);
+}
+
+// Xóa tài khoản, cập nhật is_deleted = -1
+export const deleteAccount = (id: string) => {
+  return HttpClient.patch(`${prefix}/user-account-deleted/${id}`)
 }
 
 // Lấy danh sách 

@@ -55,6 +55,7 @@ export interface IOrder{
     createdBy: string,
     createdAt?: string,
     updatedAt?: string,
+    isOrderShippingCreated: boolean,
     products: {
         id: string,
         name: string,

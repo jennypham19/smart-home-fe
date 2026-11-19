@@ -20,6 +20,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -44,10 +45,13 @@ import { COLORS } from '@/constants/colors';
 import ListAccounts from './ListAccounts';
 import { useDataList } from '@/hooks/useDataList';
 import { IUser } from '@/types/user';
-import { getAccounts } from '@/services/user-service';
+import { deleteAccount, getAccounts } from '@/services/user-service';
 import CustomPagination from '@/components/Pagination/CustomPagination';
 import Backdrop from '@/components/Backdrop';
 import { getRoleLabel } from '@/utils/labelEntoVni';
+import ViewAccount from './components/ViewAccount';
+import EditAccount from './components/EditAccount';
+import useNotification from '@/hooks/useNotification';
 
 /* ------------------------------------------------------------------ */
 /* Palette (khớp với giao diện tối trong ảnh)                          */
@@ -89,8 +93,11 @@ const rows: Row[] = [
 
 /* ================================================================== */
 const DashboardAdmin = () => {
+  const notify = useNotification();
   const [accountType, setAccountType] = useState('account');
   const [openAccount, setOpenAccount] = useState(false);
+  const [openTypeAccount, setOpenTypeAccount] = useState<{ open: boolean, type: string }>({ open: true, type: '' });
+  const [account, setAccount] = useState<IUser | null>(null);
 
   const {
         listData,
@@ -101,7 +108,8 @@ const DashboardAdmin = () => {
         fetchData,
         total,
         handlePageChange,
-        handleSearch
+        handleSearch,
+        setLoading
   } = useDataList<IUser>((params) => getAccounts(params), 5, 'all');
 
   const handleOpenAccount = () => {
@@ -113,6 +121,50 @@ const DashboardAdmin = () => {
     fetchData(page, rowsPerPage)
   }
 
+
+  const handleOpenTypeAccount = (type: string, account: IUser) => {
+    setAccount(account)
+    switch (type) {
+      case 'view':
+        setOpenTypeAccount({ open: true, type: 'view' })
+        break;
+      case 'edit':
+        setOpenTypeAccount({ open: true, type: 'edit' })
+        break;
+      case 'delete':
+        handleDeleteAccount()
+        break;
+    }
+  }
+
+  const handleCloseTypeAccount = (type: string) => {
+    switch (type) {
+      case 'view':
+        setOpenTypeAccount({ open: false, type: 'view' })
+        break;
+      case 'edit':
+        setOpenTypeAccount({ open: false, type: 'edit' })
+        break;
+    }
+  }
+
+  const handleDeleteAccount = async() => {
+    setLoading(true)
+    try {
+      const res = account && await deleteAccount(account.id)
+      notify({
+        message: res.message,
+        severity: 'success'
+      })
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        severity: 'error'
+      })
+    } finally{
+      setLoading(false)
+    }
+  }
   return (
     <Box>
       {!openAccount && (
@@ -158,7 +210,7 @@ const DashboardAdmin = () => {
             {/* Gán quyền cho tài khoản                                  */}
             {/* -------------------------------------------------------- */}
             <Typography sx={{ fontSize: { xs: 20, md: 24 }, fontWeight: 700, mt: { xs: 4, md: 5 }, mb: 2 }}>
-              Gán quyền cho tài khoản
+              Danh sách tài khoản
             </Typography>
 
             <Box
@@ -177,7 +229,7 @@ const DashboardAdmin = () => {
                 spacing={2}
                 sx={{ p: { xs: 2, md: 3 } }}
               >
-                <Stack direction='row' spacing={2} alignItems='center' useFlexGap>
+                {/* <Stack direction='row' spacing={2} alignItems='center' useFlexGap>
                   <Button
                     startIcon={<FilterList />}
                     sx={{
@@ -217,7 +269,7 @@ const DashboardAdmin = () => {
                     <MenuItem value='role'>Chức vụ</MenuItem>
                     <MenuItem value='status'>Trạng thái</MenuItem>
                   </Select>
-                </Stack>
+                </Stack> */}
 
                 <InputBase
                   placeholder='Tìm kiếm nội dung...'
@@ -270,7 +322,7 @@ const DashboardAdmin = () => {
                         sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}
                       >
                         <TableCell sx={{ borderColor: C.border }}>
-                          <Avatar src={avatar1 || row.avatarUrl } alt={row.fullName} sx={{ width: 40, height: 40, borderRadius: '50%' }} />
+                          <Avatar src={row.avatarUrl ?? avatar1 } alt={row.fullName} sx={{ width: 40, height: 40, borderRadius: '50%' }} />
                         </TableCell>
                         <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
                           {row.fullName}
@@ -295,13 +347,13 @@ const DashboardAdmin = () => {
                         </TableCell>
                         <TableCell align='center' sx={{ borderColor: C.border }}>
                           <Stack direction='row' spacing={1} justifyContent='center'>
-                            <ActionButton>
+                            <ActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeAccount('view', row)}>
                               <VisibilityOutlined fontSize='small' />
                             </ActionButton>
-                            <ActionButton>
+                            <ActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeAccount('edit', row)}>
                               <EditOutlined fontSize='small' />
                             </ActionButton>
-                            <ActionButton>
+                            <ActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeAccount('delete', row)}>
                               <DeleteOutline fontSize='small' />
                             </ActionButton>
                           </Stack>
@@ -343,6 +395,20 @@ const DashboardAdmin = () => {
       {openAccount && (
         <ListAccounts
           onBack={handleCloseAccount}
+        />
+      )}
+      {openTypeAccount.open && openTypeAccount.type === 'view' && account && (
+        <ViewAccount
+          open={openTypeAccount.open}
+          onClose={() => handleCloseTypeAccount('view')}
+          account={account}
+        />
+      )}
+      {openTypeAccount.open && openTypeAccount.type === 'edit' && account && (
+        <EditAccount
+          open={openTypeAccount.open}
+          onClose={() => {handleCloseTypeAccount('edit'), fetchData(page, rowsPerPage)}}
+          account={account}
         />
       )}
     </Box>
@@ -397,8 +463,10 @@ const RecentAccountCard = ({
 /* ================================================================== */
 /* Nút hành động trong bảng                                           */
 /* ================================================================== */
-const ActionButton = ({ children }: { children: ReactNode }) => (
+const ActionButton = ({ children, toolTip, onHandleOpenButton }: { children: ReactNode, toolTip: string, onHandleOpenButton: () => void }) => (
+  <Tooltip title={toolTip}>
   <IconButton
+    onClick={onHandleOpenButton}
     size='small'
     sx={{
       color: C.text,
@@ -409,6 +477,7 @@ const ActionButton = ({ children }: { children: ReactNode }) => (
   >
     {children}
   </IconButton>
+  </Tooltip>
 );
 
 /* ================================================================== */

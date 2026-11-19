@@ -13,6 +13,15 @@ export interface UserPayload{
     address?: string | null
 }
 
+export interface UserUpdatePayload{
+    avatarUrl?: string | null,
+    fullName: string,
+    phone?: string | null,
+    email?: string | null,
+    role: string,
+    address?: string | null
+}
+
 //Output
 export interface IUser{
     id: string,

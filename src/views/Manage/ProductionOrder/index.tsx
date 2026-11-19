@@ -341,7 +341,7 @@ const ProductionOrder = () => {
         setTypeProductionOrder({ open: false, type: 'view' })
         break; 
       case 'nhap-thong-tin':
-        setTypeProductionOrder({ open: true, type: 'nhap-thong-tin'})
+        setTypeProductionOrder({ open: false, type: 'nhap-thong-tin'})
         break;
     }
   } 
@@ -560,7 +560,7 @@ const ProductionOrder = () => {
                       {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
                         <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
                       )}
-                      {row.status === OrderStatus.PRODUCTION_COMPLETED && (
+                      {(row.status === OrderStatus.PRODUCTION_COMPLETED && !row.isOrderShippingCreated) && (
                         <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
                       )}
                     </Stack>
