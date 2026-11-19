@@ -125,7 +125,7 @@ const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleBu
   if (order.process === 100) {
     return (
       <Button
-        onClick={() => onHandleButton('approve', order)}
+        onClick={() => onHandleButton('nhap-thong-tin', order)}
         {...base}
         variant="contained"
         sx={{ ...base.sx, color: '#fff' }}
@@ -349,7 +349,8 @@ const ProductionOrder = () => {
   const handleButton = (type: string, order: IOrder) => {
     setOrder(order);
     switch (type) {
-      case 'approve':
+      case 'nhap-thong-tin':
+        setTypeProductionOrder({ open: true, type: 'nhap-thong-tin'})
         break;
       case 'edit':
         setTypeProductionOrder({ open: true, type: 'edit' })

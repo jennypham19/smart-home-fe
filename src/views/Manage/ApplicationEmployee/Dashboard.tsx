@@ -26,6 +26,7 @@ import { getAllProductionOrderWithStatus, sendApprovalOrderToManager } from '@/s
 import { IOrder } from '@/types/order';
 import Backdrop from '@/components/Backdrop';
 import { C } from '@/constants/colors';
+import InformationProductionOrder from '../ProductionOrder/components/InformationProductionOrder';
 
 /* ------------------------------------------------------------------ */
 /* Constant button type                          */
@@ -129,7 +130,7 @@ const ActionButtons = ({
   typePrimary,
   typeSecondary,
   onHandle,
-  orderId
+  order
 }: {
   primaryLabel: string;
   secondaryLabel?: string;
@@ -138,13 +139,13 @@ const ActionButtons = ({
   primaryDisabled?: boolean;
   typePrimary: string;
   typeSecondary?: string;
-  orderId: string;
-  onHandle: (type: string, orderId: string) => void;
+  order: IOrder;
+  onHandle: (type: string, order: IOrder) => void;
 }) => (
   <Stack direction="row" spacing={1.5} sx={{ mt: 'auto', pt: 2 }}>
     <Button
       key={typePrimary}
-      onClick={() => onHandle(typePrimary, orderId)}
+      onClick={() => onHandle(typePrimary, order)}
       fullWidth
       variant="contained"
       startIcon={primaryIcon}
@@ -184,7 +185,7 @@ const ActionButtons = ({
 );
 
 // Thẻ đơn hàng sản xuất
-const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: string, orderId: string) => void; }) => (
+const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: string, order: IOrder) => void; }) => (
   <CardShell>
     <CardHeader
       code={order.code}
@@ -234,7 +235,7 @@ const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: s
     </Stack>
 
     <ActionButtons
-      orderId={order.id}
+      order={order}
       typePrimary='nhap-thong-tin'
       primaryLabel="Nhập thông tin"
       primaryIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
@@ -276,7 +277,7 @@ const DeliveryStepper = ({ steps }: { steps: DeliveryStep[] }) => (
 );
 
 // Thẻ đơn hàng giao nhận
-const DeliveryCard = ({ order, onHandle }: { order: DeliveryOrder, onHandle: (type: string, orderId: string) => void; }) => (
+const DeliveryCard = ({ order, onHandle }: { order: DeliveryOrder, onHandle: (type: string, order: IOrder) => void; }) => (
   <CardShell>
     <CardHeader code={order.code} title={order.title} />
 
@@ -297,8 +298,8 @@ const DeliveryCard = ({ order, onHandle }: { order: DeliveryOrder, onHandle: (ty
       ))}
     </Stack>
 
-    <ActionButtons
-      orderId={order.id}
+    {/* <ActionButtons
+      order={order}
       typePrimary='gui-di'
       typeSecondary='kiem-tra'
       primaryLabel="Gửi đi"
@@ -306,7 +307,7 @@ const DeliveryCard = ({ order, onHandle }: { order: DeliveryOrder, onHandle: (ty
       primaryIcon={<NearMeOutlined sx={{ fontSize: 18 }} />}
       secondaryIcon={<QrCodeScannerOutlined sx={{ fontSize: 18 }} />}
       onHandle={onHandle}
-    />
+    /> */}
   </CardShell>
 );
 
@@ -315,8 +316,9 @@ const DashboardApplicationEmployee = () => {
   const navigate = useNavigate()
   const notify = useNotification();
   const [productionOrders, setProductionOrders] = useState<IOrder[]>([])
-  const [orderId, setOrderId] = useState<string>('');
+  const [order, setOrder] = useState<IOrder | null>(null);
   const [loading, setLoading] = useState(false);
+  const [openTypeOrder, setOpenTypeOrder] = useState<{ open: boolean, type: string }>({ open: false, type: ''})
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true)
@@ -348,12 +350,12 @@ const DashboardApplicationEmployee = () => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const onHandlePrimaryButton = (type: string, orderId: string) => {
-    if(!orderId) return;
-    setOrderId(orderId);
+  const onHandlePrimaryButton = (type: string, order: IOrder) => {
+    if(order === null) return;
+    setOrder(order);
     switch (type) {
       case TYPE_BUTTON.NHAP_THONG_TIN:
-        sendProductionOrderAprrovalToManager()
+        setOpenTypeOrder({ open: true, type: TYPE_BUTTON.NHAP_THONG_TIN })
         break;
       case TYPE_BUTTON.BAO_LOI:
         // Xử lý báo lỗi
@@ -371,25 +373,7 @@ const DashboardApplicationEmployee = () => {
 
 
   // Phần xử lý và gọi api của các button
-  const sendProductionOrderAprrovalToManager = async() => {
-    // setLoading(true);
-    // try {
-    //   const status = 'pending_manager_approval'
-    //   const res = await sendApprovalOrderToManager(orderId, status);
-    //   notify({
-    //     message: res.message,
-    //     severity: 'success'
-    //   })
-    //   fetchDashboardData();
-    // } catch (error: any) {
-    //   notify({
-    //     message: error.message,
-    //     severity: 'error'
-    //   })
-    // } finally {
-    //   setLoading(false);
-    // }
-  }
+
 
   return (
     <Box
@@ -419,6 +403,13 @@ const DashboardApplicationEmployee = () => {
           </Grid>
         ))}
       </Grid>
+      {openTypeOrder.open && openTypeOrder.type === TYPE_BUTTON.NHAP_THONG_TIN && order && (
+        <InformationProductionOrder
+          open={openTypeOrder.open}
+          onClose={() => setOpenTypeOrder({ open: false, type: TYPE_BUTTON.NHAP_THONG_TIN })}
+          order={order}
+        />
+      )}
     </Box>
   );
 };
