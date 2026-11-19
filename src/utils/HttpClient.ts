@@ -48,10 +48,10 @@ class Axios {
     instance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+        const originalRequest = error.config as | AxiosRequestConfig & { _retry?: boolean } | undefined;
 
-        // Chỉ xử lý lỗi 401 Unauthorized và đảm bảo không bị lặp vô hạn
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Chỉ xử lý lỗi 401 Unauthorized khi có request gốc và đảm bảo không bị lặp vô hạn
+        if (error.response?.status === 401 && originalRequest &&  !originalRequest._retry) {
           if (this.isRefreshing) {
             // Nếu đang có một tiến trình refresh token khác chạy, đẩy request này vào hàng đợi
             return new Promise((resolve, reject) => {
@@ -98,7 +98,7 @@ class Axios {
         }
         
         // Trả về lỗi cho các trường hợp khác (ví dụ: 403, 404, 500)
-        return Promise.reject(error.response?.data);
+        return Promise.reject(error.response?.data ?? error);
       }
     );
   }
@@ -132,7 +132,7 @@ class Axios {
       this.Instance.post<D, AxiosResponse<R>>(url, data, rest)
         .then((response) => resolve(integrity ? response : response.data))
         .catch((error: AxiosError) => {
-          reject(error.response?.data || error)
+          reject(error.response?.data ?? error)
         });
     });
   }
@@ -143,7 +143,7 @@ class Axios {
       this.Instance.get<T, AxiosResponse<R>, D>(url, config)
         .then((response) => resolve(response.data))
         .catch((error: AxiosError) => {
-          reject(error.response?.data || error);
+          reject(error.response?.data ?? error);
         });
     });
   }
@@ -153,7 +153,7 @@ class Axios {
     return new Promise((resolve, reject) => {
       this.Instance.put<D, AxiosResponse<R>>(url, data, config)
         .then((response) => resolve(response.data))
-        .catch((error: AxiosError) => reject(error.response?.data || error));
+        .catch((error: AxiosError) => reject(error.response?.data ?? error));
     });
   }
 
@@ -165,7 +165,7 @@ class Axios {
     return new Promise((resolve, reject) => {
       this.Instance.patch<D, AxiosResponse<R>>(url, data, config)
         .then((response) => resolve(response.data))
-        .catch((error: AxiosError) => reject(error.response?.data || error));
+        .catch((error: AxiosError) => reject(error.response?.data ?? error));
     });
   }
 
@@ -174,7 +174,7 @@ class Axios {
     return new Promise((resolve, reject) => {
       this.Instance.delete<D, AxiosResponse<R>>(url, config)
         .then((response) => resolve(response.data))
-        .catch((error: AxiosError) => reject(error.response?.data || error));
+        .catch((error: AxiosError) => reject(error.response?.data ?? error));
     });
   }
 }

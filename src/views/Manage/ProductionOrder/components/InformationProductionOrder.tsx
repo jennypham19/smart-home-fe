@@ -1,7 +1,10 @@
 import DialogComponent from "@/components/DialogComponent";
 import InputText from "@/components/InputText";
 import { C } from "@/constants/colors";
-import { IOrder } from "@/types/order";
+import useAuth from "@/hooks/useAuth";
+import useNotification from "@/hooks/useNotification";
+import { createOrderShipping } from "@/services/order-service";
+import { BodyPayload, DeliveryOrderPayload, IOrder } from "@/types/order";
 import { checkPhoneRegext } from "@/utils/common";
 import { Add, CheckCircle, CheckCircleOutline, LocalShipping, NewReleases, Person, SettingsBackupRestore, ShoppingBasket } from "@mui/icons-material";
 import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
@@ -50,6 +53,9 @@ type FormErrorsRecipient= {
 
 const InformationProductionOrder = (props: InformationProductionOrderProps) => {
     const { open, onClose, order } = props;
+    const notify = useNotification();
+    const { profile } = useAuth();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // form dữ liệu
     const [formDataDeliveryOrder, setFormDataDeliveryOrder] = useState<FormDataDeliveryOrder>({ deliveryOrderCode: '', deliveryDate: dayjs(), shippingCarrier: null, shippingFee: null })
@@ -151,9 +157,54 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
         setErrorsDeliveryOrder(newErrorsDeliveryOrder)
 
         // bắt lỗi phần thông tin người giao
-        
+        if(!formDataDeliveryPerson.nameDeliveryPerson) newErrorsDeliveryPerson.nameDeliveryPerson = "Vui lòng nhập tên tài xế";
+        if(!formDataDeliveryPerson.phoneDeliveryPerson) newErrorsDeliveryPerson.phoneDeliveryPerson = "Vui lòng nhập số điện thoại";
+        if(!formDataDeliveryPerson.licensePlate) newErrorsDeliveryPerson.licensePlate = "Vui lòng nhập biển số xe";
+        if(!formDataDeliveryPerson.addressGetDelivery) newErrorsDeliveryPerson.addressGetDelivery = "Vui lòng nhập địa chỉ lấy hàng";
+        setErrorsDeliveryPerson(newErrorsDeliveryPerson)
+
+        // bắt lỗi phần thông tin người nhận
+        if(!formDataRecipient.nameRecipient) newErrorsRecipient.nameRecipient = "Vui lòng nhập tên người nhận";
+        if(!formDataRecipient.phoneRecipient) newErrorsRecipient.phoneRecipient = "Vui lòng nhập số điện thoại người nhận";
+        if(!formDataRecipient.addressReceivedDelivery) newErrorsRecipient.addressReceivedDelivery = "Vui lòng nhập địa chỉ nhận hàng";
+        setErrorsRecipient(newErrorsRecipient);
 
         return Object.keys(newErrorsDeliveryOrder).length === 0 && Object.keys(newErrorsDeliveryPerson).length === 0 && Object.keys(newErrorsRecipient).length === 0
+    }
+
+    const handleSave = async() => {
+        if(!validate()){
+            return
+        }
+        setIsSubmitting(true)
+        try {
+            const DeliveryOrderData: DeliveryOrderPayload = {
+                deliveryOrderCode: formDataDeliveryOrder.deliveryOrderCode,
+                deliveryDate: formDataDeliveryOrder.deliveryDate,
+                shippingCarrier: formDataDeliveryOrder.shippingCarrier ? formDataDeliveryOrder.shippingCarrier : null,
+                shippingFee: formDataDeliveryOrder.shippingFee,
+                createdBy: profile ? profile?.id : null,
+                orderId: order.id
+            }
+            const payload: BodyPayload = {
+                deliveryOrder: DeliveryOrderData,
+                deliveryPerson: formDataDeliveryPerson,
+                recipient: formDataRecipient
+            }
+            const res = await createOrderShipping(payload);
+            notify({
+                message: res.message,
+                severity: 'success'
+            })
+            handleClose()
+        } catch (error: any) {
+            notify({
+                message: error.message,
+                severity: 'error'
+            })
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return(
@@ -243,6 +294,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                         onChange={handleInputChangeDeliveryOrder}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errorsDeliveryOrder.deliveryOrderCode}
+                        helperText={errorsDeliveryOrder.deliveryOrderCode}
                     />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
@@ -255,6 +308,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                         onChange={handleInputChangeDeliveryOrder}
                         margin="dense"
                         placeholder="Nội dung...."
+                        error={!!errorsDeliveryOrder.deliveryDate}
+                        helperText={errorsDeliveryOrder.deliveryDate}
                     />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
@@ -280,6 +335,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                         margin="dense"
                         placeholder="Nội dung...."
                         endAdornment={<InputAdornment position="end">VNĐ</InputAdornment>}
+                        error={!!errorsDeliveryOrder.shippingFee}
+                        helperText={errorsDeliveryOrder.shippingFee}
                     />
                 </Grid>
 
@@ -303,6 +360,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeDeliveryPerson}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsDeliveryPerson.nameDeliveryPerson}
+                                helperText={errorsDeliveryPerson.nameDeliveryPerson}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
@@ -315,6 +374,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeDeliveryPerson}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsDeliveryPerson.phoneDeliveryPerson}
+                                helperText={errorsDeliveryPerson.phoneDeliveryPerson}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
@@ -327,6 +388,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeDeliveryPerson}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsDeliveryPerson.licensePlate}
+                                helperText={errorsDeliveryPerson.licensePlate}
                             />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -341,6 +404,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeDeliveryPerson}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsDeliveryPerson.addressGetDelivery}
+                                helperText={errorsDeliveryPerson.addressGetDelivery}
                             />
                         </Grid>
                     </Grid>
@@ -364,6 +429,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeRecipient}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsRecipient.nameRecipient}
+                                helperText={errorsRecipient.nameRecipient}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
@@ -376,6 +443,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeRecipient}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsRecipient.phoneRecipient}
+                                helperText={errorsRecipient.phoneRecipient}
                             />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -390,6 +459,8 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                                 onChange={handleInputChangeRecipient}
                                 margin="dense"
                                 placeholder="Nội dung...."
+                                error={!!errorsRecipient.addressReceivedDelivery}
+                                helperText={errorsRecipient.addressReceivedDelivery}
                             />
                         </Grid>
                     </Grid>
@@ -437,7 +508,7 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
                             bgcolor: C.cyan
                         }}
                         startIcon={<Add/>}
-                        onClick={() => {}}
+                        onClick={handleSave}
                     >
                         Tạo đơn
                     </Button>

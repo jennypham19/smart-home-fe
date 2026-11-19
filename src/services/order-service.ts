@@ -2,7 +2,7 @@ import type { HttpResponse } from '@/types/common';
 import HttpClient from '@/utils/HttpClient';
 import { GetParams, PaginatedResponse } from './base-service';
 import { ProductPayload } from '@/types/product';
-import { IOrder, OrderPayload } from '@/types/order';
+import { BodyPayload, IOrder, OrderPayload } from '@/types/order';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; 
 const prefix = `${API_BASE_URL}/api/orders`;
@@ -125,4 +125,9 @@ export const approvedByManager = (id: string, status: string) => {
 // Chỉnh sửa lại đơn hàng
 export const updateOrderWithProduct = async(id: string, payload: OrderPayload) => {
     return HttpClient.put(`${prefix}/order-with-products-updated/${id}`, payload as any);
+}
+
+// Tạo thông tin đơn hàng giao nhận
+export const createOrderShipping = async(payload: BodyPayload) => {
+  return HttpClient.post(`${prefix}/order-shipping-created`, payload)
 }

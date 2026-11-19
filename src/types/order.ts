@@ -1,3 +1,9 @@
+// Input
+
+import { Dayjs } from "dayjs";
+
+
+// Payload
 export interface OrderPayload {
     code: string;
     name: string;
@@ -11,6 +17,34 @@ export interface OrderPayload {
     }[]
 }
 
+export interface DeliveryOrderPayload {
+    deliveryOrderCode: string,
+    deliveryDate: Dayjs | null,
+    shippingCarrier: string | null,
+    shippingFee: any,
+    createdBy: string | null,
+    orderId: string
+}
+
+interface DeliveryPersonPayload{
+    nameDeliveryPerson: string,
+    phoneDeliveryPerson: string,
+    licensePlate: string,
+    addressGetDelivery: string,
+}
+
+interface RecipientPayload{
+    nameRecipient: string,
+    phoneRecipient: string,
+    addressReceivedDelivery: string,
+}
+
+export interface BodyPayload{
+    deliveryOrder: DeliveryOrderPayload,
+    deliveryPerson: DeliveryPersonPayload,
+    recipient: RecipientPayload
+}
+// Output
 export interface IOrder{
     id: string,
     code: string,

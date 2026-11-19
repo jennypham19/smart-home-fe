@@ -288,7 +288,18 @@ const InputText: React.FC<CustomInputProps> = ({
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 border: '1px solid rgb(53, 50, 50)',
               },
-              
+              '& .MuiInputAdornment-root .MuiIconButton-root': {
+                  color: '#fff',
+              },
+              // Màu SVG bên trong icon
+              '& .MuiInputAdornment-root .MuiIconButton-root .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
+
+              // Màu icon khi hover
+              '& .MuiInputAdornment-root .MuiIconButton-root:hover .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
             },
             InputProps: {
               ...params.InputProps,
@@ -304,7 +315,7 @@ const InputText: React.FC<CustomInputProps> = ({
                           handleClear();
                         }}
                       >
-                          <Close />
+                          <Close/>
                         </IconButtonMui>
                       </InputAdornment>
                   )}
