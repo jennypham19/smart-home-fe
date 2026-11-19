@@ -139,6 +139,23 @@ const InformationProductionOrder = (props: InformationProductionOrderProps) => {
          
     }
 
+    const validate = (): boolean => {
+        const newErrorsDeliveryOrder: FormErrorsDeliveryOrder = {};
+        const newErrorsDeliveryPerson: FormErrorsDeliveryPerson = {};
+        const newErrorsRecipient: FormErrorsRecipient = {};
+
+        // bắt lỗi phần thông tin đơn giao
+        if(!formDataDeliveryOrder.deliveryOrderCode) newErrorsDeliveryOrder.deliveryOrderCode = "Vui lòng nhập mã đơn giao nhận";
+        if(!formDataDeliveryOrder.deliveryDate) newErrorsDeliveryOrder.deliveryDate = "Vui lòng chọn ngày giao dự kiến";
+        if(!formDataDeliveryOrder.shippingFee) newErrorsDeliveryOrder.shippingFee = "Vui lòng nhập tiền cước";
+        setErrorsDeliveryOrder(newErrorsDeliveryOrder)
+
+        // bắt lỗi phần thông tin người giao
+        
+
+        return Object.keys(newErrorsDeliveryOrder).length === 0 && Object.keys(newErrorsDeliveryPerson).length === 0 && Object.keys(newErrorsRecipient).length === 0
+    }
+
     return(
         <DialogComponent
             dialogKey={open}
