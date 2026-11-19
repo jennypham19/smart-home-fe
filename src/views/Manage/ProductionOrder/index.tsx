@@ -14,6 +14,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -46,6 +47,7 @@ import Backdrop from '@/components/Backdrop';
 import { OrderStatus } from '@/constants/status';
 import ViewProductionOrder from './components/ViewProductionOrder';
 import EditProductionOrder from './components/EditProductionOrder';
+import InformationProductionOrder from './components/InformationProductionOrder';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -232,26 +234,28 @@ const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButt
 /* ------------------------------------------------------------------ */
 /* Nút thao tác trong bảng                                             */
 /* ------------------------------------------------------------------ */
-const TableActionButton = ({ icon, onHandleOpenButton }: { icon: ReactNode, onHandleOpenButton: () => void }) => (
-  <Box
-    onClick={onHandleOpenButton}
-    component="button"
-    sx={{
-      width: 34,
-      height: 34,
-      borderRadius: 2,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: `1px solid ${C.border}`,
-      bgcolor: 'transparent',
-      color: C.text,
-      cursor: 'pointer',
-      '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
-    }}
-  >
-    {icon}
-  </Box>
+const TableActionButton = ({ icon, onHandleOpenButton, toolTip }: { icon: ReactNode, onHandleOpenButton: () => void, toolTip: string }) => (
+  <Tooltip title={toolTip}>
+    <Box
+      onClick={onHandleOpenButton}
+      component="button"
+      sx={{
+        width: 34,
+        height: 34,
+        borderRadius: 2,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: `1px solid ${C.border}`,
+        bgcolor: 'transparent',
+        color: C.text,
+        cursor: 'pointer',
+        '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
+      }}
+    >
+      {icon}
+    </Box>
+  </Tooltip>
 );
 
 /* ================================================================== */
@@ -318,6 +322,9 @@ const ProductionOrder = () => {
       case 'view':
         setTypeProductionOrder({ open: true, type: 'view' })
         break; 
+      case 'nhap-thong-tin':
+        setTypeProductionOrder({ open: true, type: 'nhap-thong-tin'})
+        break;
     }
   } 
 
@@ -333,6 +340,9 @@ const ProductionOrder = () => {
       case 'view':
         setTypeProductionOrder({ open: false, type: 'view' })
         break; 
+      case 'nhap-thong-tin':
+        setTypeProductionOrder({ open: true, type: 'nhap-thong-tin'})
+        break;
     }
   } 
 
@@ -543,15 +553,15 @@ const ProductionOrder = () => {
                   </TableCell>
                   <TableCell align="center" sx={{ borderColor: C.border }}>
                     <Stack direction="row" spacing={1} justifyContent="center">
-                      <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('view', row)} icon={<VisibilityOutlined fontSize="small" />} />
+                      <TableActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeProductionOrder('view', row)} icon={<VisibilityOutlined fontSize="small" />} />
                       {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
-                      <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
+                      <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
                       )}
                       {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
-                        <TableActionButton onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
+                        <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
                       )}
                       {row.status === OrderStatus.PRODUCTION_COMPLETED && (
-                        <TableActionButton onHandleOpenButton={() => {}} icon={<NearMeOutlined fontSize='small'/>} />
+                        <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
                       )}
                     </Stack>
                   </TableCell>
@@ -604,6 +614,13 @@ const ProductionOrder = () => {
         <EditProductionOrder
           open={typeProductionOrder.open}
           onClose={() => handleCloseTypeProductionOrder('edit')}
+          order={order}
+        />
+      )}
+      {typeProductionOrder.open && typeProductionOrder.type === 'nhap-thong-tin' && order && (
+        <InformationProductionOrder
+          open={typeProductionOrder.open}
+          onClose={() => handleCloseTypeProductionOrder('nhap-thong-tin')}
           order={order}
         />
       )}
