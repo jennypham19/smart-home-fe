@@ -5,7 +5,7 @@ import { C } from "@/constants/colors";
 import useNotification from "@/hooks/useNotification";
 import { createProduct } from "@/services/product-service";
 import { ProductPayload } from "@/types/product";
-import { getOrderStatusLabel } from "@/utils/labelEntoVni";
+import { getOrderStatusLabel, getProductStatusLabel } from "@/utils/labelEntoVni";
 import { Add, NewReleases, SettingsBackupRestore } from "@mui/icons-material";
 import { Button, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -115,6 +115,34 @@ const AddProduct = (props: AddProductProps) => {
             isActiveFooter={false}
             sx={{ bgcolor: C.card }}
             dialogContentHeight={Object.keys(errors).length === 0 ? 420 : 480}
+            // Khi nội dung tràn height và xuất hiện scroll: nền paper theo C.card + thu nhỏ thanh cuộn
+            PaperProps={{
+                sx: {
+                    bgcolor: C.card,
+                    // Firefox
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: `rgba(255,255,255,0.25) ${C.card}`,
+                    '&, & *': {
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: `rgba(255,255,255,0.25) ${C.card}`,
+                    },
+                    // Chrome / Edge / Safari
+                    '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
+                        width: '6px',
+                        height: '6px',
+                    },
+                    '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
+                        backgroundColor: C.card,
+                    },
+                    '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+                        backgroundColor: 'rgba(255,255,255,0.25)',
+                        borderRadius: '8px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.4)',
+                    },
+                },
+            }}
         >
             <Grid container spacing={2}>
                 {/* ------------------- Phần tiêu đề dialog ---------------- */}
@@ -205,7 +233,7 @@ const AddProduct = (props: AddProductProps) => {
                     <InputText
                         label=""
                         name="status"
-                        value={getOrderStatusLabel(formData.status)}
+                        value={getProductStatusLabel(formData.status)}
                         onChange={handleInputChange}
                         disabled
                         type="text"

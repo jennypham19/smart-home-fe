@@ -11,6 +11,11 @@ export const createProduct = async(payload: ProductPayload) => {
   return HttpClient.post(`${prefix}/product-created`, payload)
 }
 
+// Chỉnh sửa thông tin sản phẩm
+export const updateProduct = async(id: string, payload: ProductPayload) => {
+  return HttpClient.put(`${prefix}/product-updated/${id}`, payload as any)
+}
+
 // Lấy danh sách 
 export const getProducts = async<T>(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<T>>>=> {
   const url = `${prefix}/list-products`;
@@ -36,4 +41,9 @@ export const getProducts = async<T>(getParams: GetParams) : Promise<HttpResponse
 // Lấy danh sách không phân trang
 export const getAllProduct = async() => {
   return HttpClient.get<any, HttpResponse<IProduct[]>>(`${prefix}/all-list-products`);
+}
+
+// Xóa sản phẩm
+export const deleteProduct = async(id: string) => {
+  return HttpClient.delete(`${prefix}/product-deleted/${id}`)
 }

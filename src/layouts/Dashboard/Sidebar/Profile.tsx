@@ -29,6 +29,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { removeAccessToken } from '@/utils/AuthHelper';
 import { getRoleLabel } from '@/utils/labelEntoVni';
 import { COLORS } from '@/constants/colors';
+import ChangePassword from '@/views/Manage/Admin/components/ChangePassword';
 
 // ==============================|| PROFILE COMPONENT ||============================== //
 
@@ -36,6 +37,7 @@ const Profile = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const profile = useAppSelector((state) => state.auth.profile);
+  const [openChangePassword, setOpenChangePassword] = useState(false);
   
   const navigate = useNavigate();
 
@@ -52,6 +54,15 @@ const Profile = () => {
     removeAccessToken();
   };
 
+  const handleOpenChangePassword = () => {
+    setOpenChangePassword(true)
+    setAnchorEl(null)
+  }
+
+  const handleCloseChangePassword = () => {
+    setOpenChangePassword(false)
+  }
+  
   const open = Boolean(anchorEl);
 
   return (
@@ -120,8 +131,8 @@ const Profile = () => {
                     <EditOutlinedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    onClick={() => navigate(ROUTE_PATH.TO_PROFILE)}
-                    primary='Edit Profile'
+                    onClick={handleOpenChangePassword}
+                    primary='Thay đổi mật khẩu'
                     sx={{
                       '& .MuiTypography-root': {
                         fontSize: '14px',
@@ -149,6 +160,13 @@ const Profile = () => {
           </ClickAwayListener>
         </Paper>
       </Popper>
+      {openChangePassword && profile && (
+        <ChangePassword
+          open={openChangePassword}
+          onClose={handleCloseChangePassword}
+          user={profile}
+        />
+      )}
     </Box>
   );
 };

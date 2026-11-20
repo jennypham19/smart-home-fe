@@ -52,3 +52,14 @@ export const getAccounts = async<T>(getParams: GetParams) : Promise<HttpResponse
     throw new Error(response.message || 'Failed to fetch list user');
   }
 }
+
+// Reset mật khẩu
+export const resetPassword = async(id: string) => {
+  return HttpClient.patch(`${prefix}/account-reset-password/${id}`)
+}
+
+// Thay đổi mật khẩu
+export const changePassword = (id: string, password: string) => {
+  return HttpClient.patch<{ password: string }, HttpResponse>(`${prefix}/password-changed/${id}`, { password })
+}
+

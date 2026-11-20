@@ -38,6 +38,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowForward,
+  LockReset,
 } from '@mui/icons-material';
 
 import avatar1 from '@/assets/images/users/avatar-1.png';
@@ -45,13 +46,15 @@ import { COLORS } from '@/constants/colors';
 import ListAccounts from './ListAccounts';
 import { useDataList } from '@/hooks/useDataList';
 import { IUser } from '@/types/user';
-import { deleteAccount, getAccounts } from '@/services/user-service';
+import { deleteAccount, getAccounts, resetPassword } from '@/services/user-service';
 import CustomPagination from '@/components/Pagination/CustomPagination';
 import Backdrop from '@/components/Backdrop';
 import { getRoleLabel } from '@/utils/labelEntoVni';
 import ViewAccount from './components/ViewAccount';
 import EditAccount from './components/EditAccount';
 import useNotification from '@/hooks/useNotification';
+import ConfirmResetPassword from './components/ConfirmResetPassword';
+import DialogConfirmPassword from './components/DialogConfirmPassword';
 
 /* ------------------------------------------------------------------ */
 /* Palette (khớp với giao diện tối trong ảnh)                          */
@@ -98,6 +101,8 @@ const DashboardAdmin = () => {
   const [openAccount, setOpenAccount] = useState(false);
   const [openTypeAccount, setOpenTypeAccount] = useState<{ open: boolean, type: string }>({ open: true, type: '' });
   const [account, setAccount] = useState<IUser | null>(null);
+  const [openNewPasswordAccount, setOpenNewPasswordAccount] = useState(false);
+  const [newPasswordAccount, setNewPasswordAccount] = useState<IUser | null>(null);
 
   const {
         listData,
@@ -134,6 +139,9 @@ const DashboardAdmin = () => {
       case 'delete':
         handleDeleteAccount()
         break;
+      case 'reset':
+        setOpenTypeAccount({ open: true, type: 'reset' })
+        break;
     }
   }
 
@@ -144,6 +152,9 @@ const DashboardAdmin = () => {
         break;
       case 'edit':
         setOpenTypeAccount({ open: false, type: 'edit' })
+        break;
+      case 'reset':
+        setOpenTypeAccount({ open: false, type: 'reset' })
         break;
     }
   }
@@ -156,6 +167,30 @@ const DashboardAdmin = () => {
         message: res.message,
         severity: 'success'
       })
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        severity: 'error'
+      })
+    } finally{
+      setLoading(false)
+    }
+  }
+
+  const handleAgree = async(user: IUser) =>{
+    setLoading(true);
+    try {
+      let res: any;
+      res = user && await resetPassword(user.id);
+      const newPassword = res.data.newPassword as any as IUser;
+      setNewPasswordAccount(newPassword);
+      handleCloseTypeAccount('view')
+      setOpenNewPasswordAccount(true)
+      notify({
+        message: res.message,
+        severity: 'success'
+      })
+      fetchData(page, rowsPerPage)
     } catch (error: any) {
       notify({
         message: error.message,
@@ -350,6 +385,9 @@ const DashboardAdmin = () => {
                             <ActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeAccount('view', row)}>
                               <VisibilityOutlined fontSize='small' />
                             </ActionButton>
+                            <ActionButton toolTip='Reset mật khẩu' onHandleOpenButton={() => handleOpenTypeAccount('reset', row)}>
+                              <LockReset fontSize='small' />
+                            </ActionButton>
                             <ActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeAccount('edit', row)}>
                               <EditOutlined fontSize='small' />
                             </ActionButton>
@@ -409,6 +447,22 @@ const DashboardAdmin = () => {
           open={openTypeAccount.open}
           onClose={() => {handleCloseTypeAccount('edit'), fetchData(page, rowsPerPage)}}
           account={account}
+        />
+      )}
+      {openTypeAccount.open && openTypeAccount.type === 'reset' && account && (
+        <ConfirmResetPassword
+          open={openTypeAccount.open}
+          onClose={() => {handleCloseTypeAccount('reset')}}
+          user={account}
+          onConfirm={handleAgree}
+          loading={loading}
+        />
+      )}
+      {openNewPasswordAccount && newPasswordAccount && (
+        <DialogConfirmPassword
+          open={openNewPasswordAccount} 
+          handleClose={() => { setOpenNewPasswordAccount(false)}}
+          user={newPasswordAccount}
         />
       )}
     </Box>

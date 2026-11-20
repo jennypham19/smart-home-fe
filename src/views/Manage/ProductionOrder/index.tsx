@@ -20,6 +20,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import {
   Add,
+  Archive,
   CheckCircle,
   CheckCircleOutline,
   DeleteOutline,
@@ -562,7 +563,10 @@ const ProductionOrder = () => {
                         <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
                       )}
                       {(row.status === OrderStatus.PRODUCTION_COMPLETED && !row.isOrderShippingCreated) && (
-                        <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
+                        <>
+                          <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
+                          <TableActionButton toolTip='Chuyển lưu trữ' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<Archive fontSize='small'/>} />
+                        </>
                       )}
                     </Stack>
                   </TableCell>

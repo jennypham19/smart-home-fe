@@ -5,6 +5,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import IconButton from '../IconButton/IconButton';
 import { Tooltip, useMediaQuery } from '@mui/material';
+import { C } from '@/constants/colors';
 
 interface Props extends BoxProps {
   title: string;
@@ -46,21 +47,20 @@ const DialogHeader = (props: Props) => {
               whiteSpace: "nowrap",
               cursor: "pointer", 
             }} 
-            color='#121828' gutterBottom
+            color={C.textMuted} gutterBottom
           >
             {title}
           </Typography>
         </Tooltip>
       ) : (
-        <Typography sx={{ fontWeight: 600, fontSize: 17, mt: 1, ml:2 }} color='#121828' gutterBottom>
+        <Typography sx={{ fontWeight: 600, fontSize: 17, mt: 1, ml:2 }} color={C.textMuted} gutterBottom>
           {title}
         </Typography>        
       )}
 
       <IconButton 
         handleFunt={onClose}
-        icon={<Close sx={{ mr:2, color: '#1C1A1B'}}/>}
-        backgroundColor='white'
+        icon={<Close sx={{ mr:2, color: C.text }}/>}
       />
       {description && <Typography variant='subtitle2'>{description}</Typography>}
     </Wrapper>

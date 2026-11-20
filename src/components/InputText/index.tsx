@@ -72,6 +72,7 @@ interface CustomInputProps {
   mt?: any;
   bgcolor?: string;
   fromNoPassword?: boolean;
+  isPassword?: boolean
 }
 
 const InputText: React.FC<CustomInputProps> = ({
@@ -103,6 +104,7 @@ const InputText: React.FC<CustomInputProps> = ({
   mt,
   bgcolor,
   fromNoPassword = false,
+  isPassword=false
 }) => {
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down('md'));
@@ -401,9 +403,21 @@ const InputText: React.FC<CustomInputProps> = ({
                     color: "#666",
                     WebkitTextFillColor: "#666",
                 },
+              '& .MuiInputAdornment-root .MuiIconButton-root': {
+                  color: '#fff',
+              },
+              // Màu SVG bên trong icon
+              '& .MuiInputAdornment-root .MuiIconButton-root .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
+
+              // Màu icon khi hover
+              '& .MuiInputAdornment-root .MuiIconButton-root:hover .MuiSvgIcon-root': {
+                  color: '#fff',
+              },
             },
             startAdornment: startAdornment,
-            endAdornment: (hasValue && !disabled) ? (
+            endAdornment: (hasValue && !disabled && !isPassword) ? (
               <InputAdornment position='end'>
                 <IconButton
                   handleFunt={handleClear}

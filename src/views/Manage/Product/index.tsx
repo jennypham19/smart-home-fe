@@ -14,6 +14,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -36,12 +37,16 @@ import { C } from '@/constants/colors';
 import AddProduct from './components/AddProduct';
 import { useFetchData } from '@/hooks/useFetchData';
 import { IProduct } from '@/types/product';
-import { getProducts } from '@/services/product-service';
+import { deleteProduct, getProducts } from '@/services/product-service';
 import Backdrop from '@/components/Backdrop';
 import { getCategoryProductLabel, getOrderStatusLabel, getProductStatusLabel, getStatusProductColor } from '@/utils/labelEntoVni';
 import useAuth from '@/hooks/useAuth';
 import { ROLE } from '@/constants/roles';
 import useWebSocket from '@/hooks/useWebSocket';
+import ViewProduct from './components/ViewProduct';
+import useNotification from '@/hooks/useNotification';
+import DialogConfirm from '@/views/components/DialogConfirm';
+import EditProduct from './components/EditProduct';
 
 /* ------------------------------------------------------------------ */
 /* Dữ liệu mẫu                                                         */
@@ -157,33 +162,38 @@ const FilterSelect = ({
   </Select>
 );
 
-const TableActionButton = ({ icon }: { icon: ReactNode }) => (
-  <Box
-    component="button"
-    sx={{
-      width: 34,
-      height: 34,
-      borderRadius: 2,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: `1px solid ${C.border}`,
-      bgcolor: 'transparent',
-      color: C.text,
-      cursor: 'pointer',
-      '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
-    }}
-  >
-    {icon}
-  </Box>
+const TableActionButton = ({ icon, onHandleOpenButton, toolTip }: { icon: ReactNode, onHandleOpenButton: () => void, toolTip: string  }) => (
+  <Tooltip title={toolTip}>
+    <Box
+      onClick={onHandleOpenButton}
+      component="button"
+      sx={{
+        width: 34,
+        height: 34,
+        borderRadius: 2,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: `1px solid ${C.border}`,
+        bgcolor: 'transparent',
+        color: C.text,
+        cursor: 'pointer',
+        '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
+      }}
+    >
+      {icon}
+    </Box>
+  </Tooltip>
 );
 
 /* ================================================================== */
 const Product = () => {
   const { profile } = useAuth();
+  const notify = useNotification();
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
-  const [typeProduct, setTypeProduct] = useState<{ open: boolean, type: string | null }>({ open: false, type: null })
+  const [typeProduct, setTypeProduct] = useState<{ open: boolean, type: string | null }>({ open: false, type: null });
+  const [product, setProduct] = useState<IProduct | null>(null)
   const {
     listData,
     loading,
@@ -194,7 +204,8 @@ const Product = () => {
     total,
     handlePageChange,
     handleSearch,
-    setListData
+    setListData,
+    setLoading
   } = useFetchData<IProduct>((params) => getProducts(params),5);
 
   // Realtime: BE broadcast { event, data } qua ws://<host>/ws (không cần token)
@@ -210,19 +221,16 @@ const Product = () => {
     },
   });
 
-  const handleOpenTypeProduct = (type: string | null) => {
+  const handleOpenAddProduct = (type: string | null) => {
     if(type === null) return;
-    switch (type) {
-      case 'add':
-        setTypeProduct({ open: true, type: 'add' })
-        break;
-      case 'edit':
-        setTypeProduct({ open: true, type: 'edit' })
-        break;
-      case 'view':
-        setTypeProduct({ open: true, type: 'view' })
-        break; 
-    }
+    setTypeProduct({ open: true, type: type })
+  }
+
+  const handleOpenTypeProduct = (type: string | null, product: IProduct) => {
+    if(type === null) return;
+    if(product === null) return;
+    setTypeProduct({ open: true, type: type })
+    setProduct(product)
   } 
 
   const handleCloseTypeProduct = (type: string | null) => {
@@ -230,6 +238,7 @@ const Product = () => {
     switch (type) {
       case 'add':
         setTypeProduct({ open: false, type: 'add' })
+        fetchData(page, rowsPerPage);
         break;
       case 'edit':
         setTypeProduct({ open: false, type: 'edit' })
@@ -237,11 +246,32 @@ const Product = () => {
       case 'view':
         setTypeProduct({ open: false, type: 'view' })
         break; 
+      case 'delete':
+        setTypeProduct({ open: false, type: 'delete' })
+        break; 
     }
-    fetchData(page, rowsPerPage);
+   
   }
 
-
+  const handleAgree = async() => {
+    setLoading(true)
+    try {
+      const res = product && await deleteProduct(product.id);
+      notify({
+        message: res.message,
+        severity: 'success'
+      })
+      
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        severity: 'error'
+      })
+    } finally {
+      setLoading(false)
+    }
+    handleCloseTypeProduct('delete')
+  }
 
   return (
     <Page title="Sản phẩm">
@@ -277,7 +307,7 @@ const Product = () => {
                 color: C.text,
                 '&:hover': { bgcolor: '#1FA3E0' },
               }}
-              onClick={() => handleOpenTypeProduct('add')}
+              onClick={() => handleOpenAddProduct('add')}
             >
               Thêm sản phẩm mới
             </Button>
@@ -378,9 +408,9 @@ const Product = () => {
                           <TableCell sx={{ color: C.text, borderColor: C.border }}>{product.amount}</TableCell>
                           <TableCell align="center" sx={{ borderColor: C.border }}>
                             <Stack direction="row" spacing={1} justifyContent="center">
-                              <TableActionButton icon={<VisibilityOutlined fontSize="small" />} />
-                              <TableActionButton icon={<EditOutlined fontSize="small" />} />
-                              <TableActionButton icon={<DeleteOutline fontSize="small" />} />
+                              <TableActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeProduct('view', product)} icon={<VisibilityOutlined fontSize="small" />} />
+                              <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProduct('edit', product)} icon={<EditOutlined fontSize="small" />} />
+                              <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProduct('delete', product)} icon={<DeleteOutline fontSize="small" />} />
                             </Stack>
                           </TableCell>
                         </TableRow>
@@ -418,10 +448,36 @@ const Product = () => {
 
 
       </Box>
+      {/* ---------------- Thêm sản phẩm ---------------- */}
       {typeProduct.open && typeProduct.type === 'add' && (
         <AddProduct
             open={typeProduct.open}
             onClose={() => handleCloseTypeProduct('add')}
+        />
+      )}
+      {/* ---------------- Chỉnh sửa sản phẩm ---------------- */}
+      {typeProduct.open && typeProduct.type === 'edit' && product && (
+        <EditProduct
+          open={typeProduct.open}
+          onClose={() => handleCloseTypeProduct('edit')}
+          product={product}
+        />
+      )}
+      {/* ---------------- Xem chi tiết sản phẩm ---------------- */}
+      {typeProduct.open && typeProduct.type === 'view' && product && (
+        <ViewProduct
+          open={typeProduct.open}
+          onClose={() => handleCloseTypeProduct('view')}
+          product={product}
+        />
+      )}
+      {/* ---------------- Xóa sản phẩm ---------------- */}
+      {typeProduct.open && typeProduct.type === 'delete' && (
+        <DialogConfirm
+          open={typeProduct.open}
+          onClose={() => handleCloseTypeProduct('delete')}
+          onAgree={handleAgree}
+          title={`Bạn đồng ý xóa sản phẩm ${product?.name} này?`}
         />
       )}
     </Page>
