@@ -26,7 +26,8 @@ export const ROUTE_PATH = {
   MANAGE_PRODUCTION_ORDER: 'don-san-xuat',
   MANAGE_EXCHANGE_ORDER: 'don-giao-nhan',
   MANAGE_UPDATE_ORDER: 'cap-nhat-don',
-
+  MANAGE_PACKING_MANAGEMENT: 'quan-ly-dong-hang',
+  MANAGE_RECEIVED_ORDER: 'don-tiep-nhan',
 
 
 

@@ -234,69 +234,6 @@ const DashboardProductionEmployee = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [typeOrder, setTypeOrder] = useState<{ open: boolean, type: string | null, orderId: string | null }>({ open: false, type: null, orderId: null })
 
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      const res = await getListOrdersForProductionEmployee();
-      // res = body API; phần dữ liệu nhóm nằm ở res.data (có { data, statusCounts })
-      setOrders(res.data as OrdersData);
-    } catch (error: any) {
-      notify({
-        message: error?.message || "Lấy danh sách đơn hàng thất bại",
-        severity: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  // Realtime: BE broadcast { event, data } qua ws://<host>/ws (không cần token)
-  useWebSocket({
-    path: "/ws",
-    withToken: false,
-    onMessage: (msg) => {
-      // BE gửi event 'production_orders:updated' kèm snapshot { data, statusCounts } ở msg.data
-      if (msg?.event === "production_orders:updated" && msg.data) {
-        setOrders(msg.data as OrdersData);
-      }
-      // event 'connected' và các event khác: bỏ qua
-    },
-  });
-
-  const groups = orders?.data;
-  const counts = orders?.statusCounts;
-  // Mở dialog theo key trạng thái + kèm id của đơn được bấm để xem chi tiết
-  const handleOpenButton = (type: string, orderId: string) => {
-    switch (type) {
-      case 'pending_production' :
-        setTypeOrder({ open: true, type: 'pending_production', orderId })
-        break;
-      case 'in_production':
-        setTypeOrder({ open: true, type: 'in_production', orderId })
-        break;
-      case 'production_completed':
-         setTypeOrder({ open: true, type: 'production_completed', orderId })
-        break;
-    }
-  }
-
-  const handleCloseButton = (type: string) => {
-    switch (type) {
-      case 'pending_production':
-        setTypeOrder({ open: false, type: 'pending_production', orderId: null })
-        break;
-      case 'in_production':
-        setTypeOrder({ open: false, type: 'pending_production', orderId: null })
-        break;
-      case 'production_completed':
-        setTypeOrder({ open: false, type: 'production_completed', orderId: null })
-        break;
-    }
-  }
   return (
     <Box sx={{ bgcolor: C.bg, minHeight: "100%", p: { xs: 2, sm: 3, md: 4 } }}>
       {loading ? (
@@ -307,36 +244,15 @@ const DashboardProductionEmployee = () => {
         <Grid container spacing={{ xs: 2, md: 8 }}>
           {columns.map((column) => (
             <Grid key={column.key} size={{ xs: 12, md: 4 }}>
-              <StatusColumn
+              {/* <StatusColumn
                 column={column}
                 orders={groups?.[column.key] ?? []}
                 count={counts?.[column.key] ?? 0}
                 onHandleOpen={handleOpenButton}
-              />
+              /> */}
             </Grid>
           ))}
         </Grid>
-      )}
-      {typeOrder.open && typeOrder.type === 'pending_production' && (
-        <PendingPackaging
-          open={typeOrder.open}
-          orderId={typeOrder.orderId}
-          onClose={() => handleCloseButton('pending_production')}
-        />
-      )}
-      {typeOrder.open && typeOrder.type === 'in_production' && (
-        <PendingPackaging
-          open={typeOrder.open}
-          orderId={typeOrder.orderId}
-          onClose={() => handleCloseButton('in_production')}
-        />
-      )}
-      {typeOrder.open && typeOrder.type === 'production_completed' && (
-        <CompletedOrder
-          open={typeOrder.open}
-          orderId={typeOrder.orderId}
-          onClose={() => handleCloseButton('production_completed')}
-        />
       )}
     </Box>
   );

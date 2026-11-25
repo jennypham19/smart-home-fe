@@ -11,6 +11,8 @@ const ProductionOrder = Loadable(lazy(() => import('@/views/Manage/ProductionOrd
 const ExchangeOrder = Loadable(lazy(() => import('@/views/Manage/ExchangeOrder/index')));
 const UpdateOrder = Loadable(lazy(() => import('@/views/Manage/UpdateOrder/index')));
 const Product = Loadable(lazy(() => import('@/views/Manage/Product/index')));
+const PackingManagement = Loadable(lazy(() => import('@/views/Manage/ProductionEmployee/PackingManagement')));
+const ReceivedOrder = Loadable(lazy(() => import('@/views/Manage/ProductionEmployee/ReceivedOrders')));
 
 const manageRoutes: RouteObject[] = [
     { index: true, element: <Navigate to={ROUTE_PATH.MANAGE_HOME} replace/> },
@@ -22,6 +24,8 @@ const manageRoutes: RouteObject[] = [
     { path: ROUTE_PATH.MANAGE_PRODUCTION_ORDER, element: <ProductionOrder/> }, // đơn sản xuất
     { path: ROUTE_PATH.MANAGE_EXCHANGE_ORDER, element: <ExchangeOrder/> }, // đơn giao nhận
     { path: ROUTE_PATH.MANAGE_UPDATE_ORDER, element: <UpdateOrder/> }, 
+    { path: ROUTE_PATH.MANAGE_PACKING_MANAGEMENT, element: <PackingManagement/>}, // quản lý đóng hàng
+    { path: ROUTE_PATH.MANAGE_RECEIVED_ORDER, element: <ReceivedOrder/>} // đơn tiếp nhận
 ]
 
 export default manageRoutes;
