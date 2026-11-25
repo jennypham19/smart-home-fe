@@ -9,6 +9,7 @@ import Grid from "@mui/material/Grid2"
 import { C } from "@/constants/colors";
 import Backdrop from "@/components/Backdrop";
 import useNotification from "@/hooks/useNotification";
+import useAuth from "@/hooks/useAuth";
 
 
 const CardShell = ({ children }: { children: ReactNode }) => (
@@ -178,6 +179,7 @@ const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: s
 
 const ProductionApproval = () => {
     const notify = useNotification();
+    const { profile } = useAuth();
     const [orderId, setOrderId] = useState<string>('')
     const {
         listData,
@@ -209,7 +211,13 @@ const ProductionApproval = () => {
         setLoading(true);
         try {
         const status = 'pending_production'
-        const res = await approvedByManager(orderId, status)
+        const userId = profile && profile.id
+        if(!userId) return;
+        const payload: { status: string, approvedBy: string} = {
+          status: status,
+          approvedBy: userId
+        }
+        const res = await approvedByManager(orderId, payload)
         notify({
             message: res.message,
             severity: 'success'
