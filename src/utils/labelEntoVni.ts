@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/colors";
 import { CATEGORY_PRODUCT_STATUS_LABEL, CategoryProduct, ORDER_STATUS_LABEL, OrderStatus, PRODUCT_STATUS_LABELS, ProductStatus, ROLE_LABELS, RoleUser } from "@/constants/status";
 
 export const getRoleLabel = (role: RoleUser | null | undefined) : string => {
@@ -36,11 +37,13 @@ export const getOrderStatusColor = (status: string | null) => {
   switch (status) {
     case OrderStatus.REJECTED || OrderStatus.MANAGER_REJECTED:
       return { color: 'error' as const };
-    case (OrderStatus.PENDING_PRODUCTION || OrderStatus.PENDING_APPROVAL || OrderStatus.PENDING_MANAGER_APPROVAL):
+    case OrderStatus.PENDING_PRODUCTION:
+      return { color: 'warning' as const };
+    case OrderStatus.PENDING_MANAGER_APPROVAL:
       return { color: 'warning' as const };
     case OrderStatus.IN_PRODUCTION: 
       return { color: 'primary' as const}
-    case OrderStatus.PRODUCTION_COMPLETED || OrderStatus.APPROVED || OrderStatus.MANAGER_APPROVED:
+    case OrderStatus.PRODUCTION_COMPLETED:
     default:
       return { color: 'success' as const };
   }

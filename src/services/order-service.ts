@@ -159,3 +159,8 @@ export const createOrderShipping = async(payload: BodyPayload) => {
 export const receivedOrderByProEmployee = (orderId: string, userId: string) => {
   return HttpClient.patch<{ userId: string}, HttpResponse>(`${prefix}/order-received-by-pro-employee/${orderId}`, {userId})
 }
+
+// Xóa đơn hàng ở trạng thái chờ quản lý duyệt
+export const deleteOrderWithStatusPendingManagerApproval = (id: string) => {
+  return HttpClient.delete(`${prefix}/order-with-status-pending-manager-approval-deleted/${id}`);
+}

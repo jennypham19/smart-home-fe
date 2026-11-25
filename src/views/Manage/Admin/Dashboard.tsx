@@ -39,6 +39,8 @@ import {
   ChevronRight,
   ArrowForward,
   LockReset,
+  ToggleOff,
+  ToggleOn,
 } from '@mui/icons-material';
 
 import avatar1 from '@/assets/images/users/avatar-1.png';
@@ -55,6 +57,8 @@ import EditAccount from './components/EditAccount';
 import useNotification from '@/hooks/useNotification';
 import ConfirmResetPassword from './components/ConfirmResetPassword';
 import DialogConfirmPassword from './components/DialogConfirmPassword';
+import DialogConfirm from '@/views/components/DialogConfirm';
+import { ROLE } from '@/constants/roles';
 
 /* ------------------------------------------------------------------ */
 /* Palette (khớp với giao diện tối trong ảnh)                          */
@@ -137,7 +141,7 @@ const DashboardAdmin = () => {
         setOpenTypeAccount({ open: true, type: 'edit' })
         break;
       case 'delete':
-        handleDeleteAccount()
+        setOpenTypeAccount({ open: true, type: 'delete' })
         break;
       case 'reset':
         setOpenTypeAccount({ open: true, type: 'reset' })
@@ -156,6 +160,9 @@ const DashboardAdmin = () => {
       case 'reset':
         setOpenTypeAccount({ open: false, type: 'reset' })
         break;
+      case 'delete':
+        setOpenTypeAccount({ open: false, type: 'delete' })
+        break;
     }
   }
 
@@ -167,11 +174,14 @@ const DashboardAdmin = () => {
         message: res.message,
         severity: 'success'
       })
+      handleCloseTypeAccount('delete')
+      fetchData(page, rowsPerPage)
     } catch (error: any) {
       notify({
         message: error.message,
         severity: 'error'
       })
+      handleCloseTypeAccount('delete')
     } finally{
       setLoading(false)
     }
@@ -391,9 +401,17 @@ const DashboardAdmin = () => {
                             <ActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeAccount('edit', row)}>
                               <EditOutlined fontSize='small' />
                             </ActionButton>
-                            <ActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeAccount('delete', row)}>
-                              <DeleteOutline fontSize='small' />
-                            </ActionButton>
+                            {row.role !== ROLE.ADMIN && (
+                              <>
+                                <ActionButton toolTip={row.status === 1 ? "Vô hiệu hóa": "Kích hoạt"} onHandleOpenButton={() => {}}>
+                                  {row.status === 1 ? <ToggleOff sx={{ color: COLORS.SERVICE_STATUS.INACTIVE}}/> : <ToggleOn sx={{ color: COLORS.SERVICE_STATUS.ACTIVE }}/>}
+                                </ActionButton>
+                                <ActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeAccount('delete', row)}>
+                                  <DeleteOutline fontSize='small' />
+                                </ActionButton>                              
+                              </>
+                            )}
+
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -449,6 +467,14 @@ const DashboardAdmin = () => {
           account={account}
         />
       )}
+      {openTypeAccount.open && openTypeAccount.type === 'delete' && account && (
+        <DialogConfirm
+          open={openTypeAccount.open}
+          onAgree={handleDeleteAccount}
+          onClose={() => handleCloseTypeAccount('delete')}
+          title={`Bạn chắc chắn muốn xóa tài khoản nhân viên ${account.fullName}?`}
+        />
+      )}
       {openTypeAccount.open && openTypeAccount.type === 'reset' && account && (
         <ConfirmResetPassword
           open={openTypeAccount.open}
@@ -465,6 +491,7 @@ const DashboardAdmin = () => {
           user={newPasswordAccount}
         />
       )}
+      
     </Box>
 
   );
