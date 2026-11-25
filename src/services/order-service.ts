@@ -62,14 +62,37 @@ export const getOrdersPaginatedWithStatusPendingManagerApproval = async(getParam
   }
 }
 
+// Lấy danh sách 
+export const getReceivedOrders = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IOrder>>>=> {
+  const url = `${prefix}/list-received-orders`;
+  const params: Record<string, any> = {
+    page: getParams.page,
+    limit: getParams.limit,
+  }
+  if(getParams.searchTerm && getParams.searchTerm.trim()) {
+    params.searchTerm = getParams.searchTerm
+  };
+  const response = await HttpClient.get<{
+    success: boolean,
+    message: string,
+    data: PaginatedResponse<IOrder>
+  }>(url, { params });
+  
+  if(response.data && response.success && response.data){
+    return response;
+  }else{
+    throw new Error(response.message || 'Failed to fetch list user');
+  }
+}
+
 // Lấy toàn bộ đơn hàng theo trạng thái pending_manager_approval cho role quản lý (không phân trang)
 export const getOrdersWithStatusPendingManagerApproval = () => {
   return HttpClient.get<any, HttpResponse<IOrder[]>>(`${prefix}/orders-with-status-pending-manager-approval`)
 }
 
 // Lấy danh sách đơn hàng cho nhân viên sản xuất: nhóm theo 3 trạng thái + tổng số lượng từng trạng thái
-export const getListOrdersForProductionEmployee = () => {
-  return HttpClient.get<any, HttpResponse<any>>(`${prefix}/list-orders-for-production-employee`);
+export const getListOrdersForProductionEmployee = (id: string) => {
+  return HttpClient.get<any, HttpResponse<any>>(`${prefix}/list-orders-for-production-employee/${id}`);
 }
 
 
@@ -118,8 +141,8 @@ export const approvedByAppEmployee = (id: string, status: string) => {
 }
 
 // Duyệt bởi quản lý
-export const approvedByManager = (id: string, status: string) => {
-  return HttpClient.patch<{ status: string }, HttpResponse>(`${prefix}/order-approved-by-manager/${id}`, { status })
+export const approvedByManager = (id: string, payload: {status: string, approvedBy: string }) => {
+  return HttpClient.patch<HttpResponse>(`${prefix}/order-approved-by-manager/${id}`, payload as any)
 }
 
 // Chỉnh sửa lại đơn hàng
@@ -130,4 +153,9 @@ export const updateOrderWithProduct = async(id: string, payload: OrderPayload) =
 // Tạo thông tin đơn hàng giao nhận
 export const createOrderShipping = async(payload: BodyPayload) => {
   return HttpClient.post(`${prefix}/order-shipping-created`, payload)
+}
+
+// Tiếp nhận đơn hàng
+export const receivedOrderByProEmployee = (orderId: string, userId: string) => {
+  return HttpClient.patch<{ userId: string}, HttpResponse>(`${prefix}/order-received-by-pro-employee/${orderId}`, {userId})
 }

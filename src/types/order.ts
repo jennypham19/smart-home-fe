@@ -53,6 +53,7 @@ export interface IOrder{
     process: number,
     status: string,
     createdBy: string,
+    assignedTo: string,
     createdAt?: string,
     updatedAt?: string,
     isOrderShippingCreated: boolean,
