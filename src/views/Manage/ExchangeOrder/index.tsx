@@ -20,17 +20,31 @@ import {
   ArrowForward,
   CheckCircle,
   CheckCircleOutline,
+  Edit,
+  EditOutlined,
   FilterList,
   HighlightOff,
   NearMeOutlined,
   QrCodeScannerOutlined,
   Search,
   TaskAltOutlined,
+  Visibility,
   VisibilityOutlined,
 } from '@mui/icons-material';
 
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import CustomPagination from '@/components/Pagination/CustomPagination';
+import SectionHeader from '../components/SectionHeader';
+import { useFetchData } from '@/hooks/useFetchData';
+import { IExchangeOrder } from '@/types/order';
+import { getListExchangeOrders, getListExchangeOrderWithPendingApproval } from '@/services/order-service';
+import ExchangeOrderCard from './components/ExchangeOrderCard';
+import { getExchangeOrderStatusColor, getExchangeOrderStatusLabel } from '@/utils/labelEntoVni';
+import IconButton from '@/components/IconButton/IconButton';
+import SearchTextBox from '../components/SearchTextBox';
+import { useDataList } from '@/hooks/useDataList';
+import TableActionButton from '../components/TableActionButton';
+import { ExchangeOrderStatus } from '@/constants/status';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -246,64 +260,73 @@ const DeliveryCard = ({ order }: { order: DeliveryOrder }) => (
   </Box>
 );
 
-/* ------------------------------------------------------------------ */
-/* Nút thao tác trong bảng                                             */
-/* ------------------------------------------------------------------ */
-const TableActionButton = ({ icon }: { icon: ReactNode }) => (
-  <Box
-    component="button"
-    sx={{
-      width: 34,
-      height: 34,
-      borderRadius: 2,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: `1px solid ${C.border}`,
-      bgcolor: 'transparent',
-      color: C.text,
-      cursor: 'pointer',
-      '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
-    }}
-  >
-    {icon}
-  </Box>
-);
 
 /* ================================================================== */
 const ExchangeOrder = () => {
-  const [activeFilter, setActiveFilter] = useState('filter');
-  const [page, setPage] = useState(1);
+  const {
+    listData: exchangeOrderWithPendingApproval
+  } = useFetchData<IExchangeOrder>((params) => getListExchangeOrderWithPendingApproval(params), 3)
 
-  const start = (page - 1) * ROWS_PER_PAGE + 1;
-  const end = Math.min(page * ROWS_PER_PAGE, TOTAL_COMPLETED);
+  const {
+    listData: exchangeOrders,
+    page,
+    loading,
+    rowsPerPage,
+    setLoading,
+    searchTerm,
+    handlePageChange,
+    handleSearch,
+    total
+  } = useDataList<IExchangeOrder>((params) => getListExchangeOrders(params), 5)
 
   return (
     <Box sx={{ bgcolor: C.bg, minHeight: '100%', p: { xs: 2, sm: 3, md: 4 } }}>
       {/* Đơn hàng giao nhận mới tạo */}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-        <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700 }}>
-          Đơn hàng giao nhận mới tạo
-        </Typography>
-        <Stack direction='row' sx={{ cursor: 'pointer' }} onClick={() => {}}>
-            <Typography sx={{ color: '#fff '}}>Xem tất cả</Typography>
-            <ArrowForward sx={{ color: '#fff'}}/>
-        </Stack>
-      </Stack>
+      <SectionHeader
+        title='Đơn hàng giao nhận mới tạo'
+        onClick={() => {}}
+      />
 
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
-        {deliveryOrders.map((order) => (
-          <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
-            <DeliveryCard order={order} />
+        {exchangeOrderWithPendingApproval.map((order) => (
+          <Grid key={order.deliveryOrderCode} size={{ xs: 12, sm: 6, md: 4 }}>
+            <ExchangeOrderCard
+              exchangeOrder={order}
+            >
+              <Box display='flex' justifyContent='space-between' alignItems='center' sx={{ width: '100%' }}>
+                <Chip
+                  label={getExchangeOrderStatusLabel(order.deliveryStatus)}
+                  color={getExchangeOrderStatusColor(order.deliveryStatus).color}
+                />
+                <Stack direction='row' spacing={1}>
+                  <IconButton
+                    tooltip='Xem chi tiết'
+                    handleFunt={() => {}}
+                    icon={<Visibility sx={{ color: C.text }}/>}
+                    border={`1px solid ${C.border}`}
+                    width={32}
+                    height={32}
+                  />
+                  <IconButton
+                    tooltip='Chỉnh sửa'
+                    handleFunt={() => {}}
+                    icon={<Edit sx={{ color: C.text }}/>}
+                    border={`1px solid ${C.border}`}
+                    width={32}
+                    height={32}
+                  />
+                </Stack>
+              </Box>
+            </ExchangeOrderCard>
           </Grid>
         ))}
       </Grid>
 
       {/* Đơn hàng giao nhận hoàn thành */}
-      <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
-        Đơn hàng giao nhận hoàn thành
-      </Typography>
-
+      <SectionHeader
+        title='Danh sách đơn hàng giao nhận'
+        onClick={() => {}}
+      />
       <Box
         sx={{
           bgcolor: C.surface,
@@ -312,66 +335,18 @@ const ExchangeOrder = () => {
           p: { xs: 2, md: 3 },
         }}
       >
-        {/* Toolbar bảng */}
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          alignItems={{ xs: 'stretch', md: 'center' }}
-          justifyContent="space-between"
-          spacing={2}
-          sx={{ mb: 2 }}
-        >
-          <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: { xs: 1, md: 0 } }}>
-            <FilterChip
-              icon={<FilterList sx={{ fontSize: 18 }} />}
-              label="Bộ lọc"
-              active={activeFilter === 'filter'}
-              onClick={() => setActiveFilter('filter')}
-            />
-            <FilterChip
-              icon={<HighlightOff sx={{ fontSize: 18 }} />}
-              label="Đơn giao thất bại"
-              active={activeFilter === 'failed'}
-              onClick={() => setActiveFilter('failed')}
-            />
-            <FilterChip
-              icon={<TaskAltOutlined sx={{ fontSize: 18 }} />}
-              label="Đơn giao thành công"
-              active={activeFilter === 'success'}
-              onClick={() => setActiveFilter('success')}
-            />
-          </Stack>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              border: `1px solid ${C.border}`,
-              borderRadius: 2,
-              px: 1.5,
-              py: 0.75,
-              width: { xs: '100%', md: 280 },
-            }}
-          >
-            <Search sx={{ color: C.textMuted, fontSize: 20 }} />
-            <InputBase
-              placeholder="Tìm kiếm nội dung..."
-              sx={{
-                color: C.text,
-                fontSize: 14,
-                flex: 1,
-                '& input::placeholder': { color: C.textMuted, opacity: 1 },
-              }}
-            />
-          </Box>
-        </Stack>
+        <SearchTextBox
+          initialValue={searchTerm}
+          onSearch={handleSearch}
+          placeholder='Tìm kiếm theo mã đơn giao nhận'
+        />
 
         {/* Bảng (cuộn ngang trên màn nhỏ) */}
-        <Box sx={{ overflowX: 'auto' }}>
+        <Box mt={2} sx={{ overflowX: 'auto' }}>
           <Table sx={{ minWidth: 820 }}>
             <TableHead>
               <TableRow>
-                {['Chọn', 'Mã đơn', 'Tên đơn hàng', 'Số lượng SP', 'Độ hoàn thiện', 'Trạng thái', 'Thao tác'].map(
+                {['Mã đơn', 'Tên đơn hàng', 'Số lượng SP', 'Độ hoàn thiện', 'Trạng thái', 'Thao tác'].map(
                   (h) => (
                     <TableCell
                       key={h}
@@ -390,33 +365,30 @@ const ExchangeOrder = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {completedOrders.map((row) => (
-                <TableRow key={row.code} hover sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}>
-                  <TableCell sx={{ borderColor: C.border }}>
+              {exchangeOrders.map((row) => (
+                <TableRow key={row.deliveryOrderCode} hover sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' } }}>
+                  {/* <TableCell sx={{ borderColor: C.border }}>
                     <Checkbox sx={{ color: C.textMuted, '&.Mui-checked': { color: C.cyan } }} />
+                  </TableCell> */}
+                  <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
+                    {row.deliveryOrderCode}
                   </TableCell>
                   <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
-                    {row.code}
+                    Đơn giao {row.deliveryOrderName}
                   </TableCell>
-                  <TableCell sx={{ color: C.text, borderColor: C.border, whiteSpace: 'nowrap' }}>
-                    {row.name}
-                  </TableCell>
-                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.qty}</TableCell>
-                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.completion}%</TableCell>
+                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.order.productQuantity}</TableCell>
+                  <TableCell sx={{ color: C.text, borderColor: C.border }}>{row.order.process}%</TableCell>
                   <TableCell sx={{ borderColor: C.border }}>
                     <Chip
-                      label={row.success ? 'Thành công' : 'Thất bại'}
-                      size="small"
-                      sx={{
-                        bgcolor: row.success ? C.green : C.red,
-                        color: '#fff',
-                        fontWeight: 600,
-                        borderRadius: 999,
-                      }}
+                      label={getExchangeOrderStatusLabel(row.deliveryStatus)}
+                      color={getExchangeOrderStatusColor(row.deliveryStatus).color}
                     />
                   </TableCell>
                   <TableCell align="center" sx={{ borderColor: C.border }}>
-                    <TableActionButton icon={<VisibilityOutlined fontSize="small" />} />
+                    <Stack direction="row" spacing={1} justifyContent="center">
+                      <TableActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => {}} icon={<VisibilityOutlined fontSize="small" />} />
+                      {row.deliveryStatus === ExchangeOrderStatus.PENDING_APPROVAL && (<TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => {}} icon={<EditOutlined fontSize="small" />} />)}
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
@@ -433,13 +405,16 @@ const ExchangeOrder = () => {
           sx={{ pt: 3 }}
         >
           <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-            Hiển thị {start} - {end} của {TOTAL_COMPLETED} đơn hàng
+            {total === 0
+              ? 'Hiển thị 0 của  0 đơn hàng'
+              : `Hiển thị ${(page - 1) * rowsPerPage + 1} - ${Math.min(page * rowsPerPage, total)} của ${total} đơn hàng`
+            }
           </Typography>
           <CustomPagination
             page={page}
-            count={TOTAL_COMPLETED}
-            rowsPerPage={ROWS_PER_PAGE}
-            onPageChange={(newPage) => setPage(newPage)}
+            count={total}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
           />
         </Stack>
       </Box>

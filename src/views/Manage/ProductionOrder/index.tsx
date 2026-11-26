@@ -50,6 +50,7 @@ import EditProductionOrder from './components/EditProductionOrder';
 import InformationProductionOrder from './components/InformationProductionOrder';
 import DialogConfirm from '@/views/components/DialogConfirm';
 import SectionHeader from '../components/SectionHeader';
+import TableActionButton from '../components/TableActionButton';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -124,7 +125,7 @@ const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleBu
     },
   };
 
-  if (order.process === 100) {
+  if (order.status === OrderStatus.PRODUCTION_COMPLETED && !order.isOrderShippingCreated) {
     return (
       <Button
         onClick={() => onHandleButton('nhap-thong-tin', order)}
@@ -233,32 +234,7 @@ const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButt
   </Box>
 );
 
-/* ------------------------------------------------------------------ */
-/* Nút thao tác trong bảng                                             */
-/* ------------------------------------------------------------------ */
-const TableActionButton = ({ icon, onHandleOpenButton, toolTip }: { icon: ReactNode, onHandleOpenButton: () => void, toolTip: string }) => (
-  <Tooltip title={toolTip}>
-    <Box
-      onClick={onHandleOpenButton}
-      component="button"
-      sx={{
-        width: 34,
-        height: 34,
-        borderRadius: 2,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: `1px solid ${C.border}`,
-        bgcolor: 'transparent',
-        color: C.text,
-        cursor: 'pointer',
-        '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
-      }}
-    >
-      {icon}
-    </Box>
-  </Tooltip>
-);
+
 
 /* ================================================================== */
 const ProductionOrder = () => {
@@ -558,7 +534,7 @@ const ProductionOrder = () => {
                     <Stack direction="row" spacing={1} justifyContent="center">
                       <TableActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeProductionOrder('view', row)} icon={<VisibilityOutlined fontSize="small" />} />
                       {(row.status === OrderStatus.PENDING_PRODUCTION || row.status === OrderStatus.PENDING_MANAGER_APPROVAL) && (
-                      <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
+                        <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
                       )}
                       {row.status === OrderStatus.PENDING_MANAGER_APPROVAL && (
                         <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />

@@ -210,14 +210,14 @@ const ProductionApproval = () => {
     const handleApprovedByManager = async(orderId: string) => {
         setLoading(true);
         try {
-        const status = 'pending_production'
-        const userId = profile && profile.id
-        if(!userId) return;
-        const payload: { status: string, approvedBy: string} = {
-          status: status,
-          approvedBy: userId
-        }
-        const res = await approvedByManager(orderId, payload)
+          const status = 'pending_production'
+          const userId = profile && profile.id
+          if(!userId) return;
+          const payload: { status: string, approvedBy: string} = {
+            status: status,
+            approvedBy: userId
+          }
+          const res = await approvedByManager(orderId, payload)
         notify({
             message: res.message,
             severity: 'success'

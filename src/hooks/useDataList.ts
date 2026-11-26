@@ -6,14 +6,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 interface FetchParams {
   page: number;
   limit: number;
-  role?: string;
   searchTerm?: string;
+  status?: string;
 }
 
 export const useDataList = <T>(
     fn: (params: FetchParams, type?: string) => Promise<HttpResponse<PaginatedResponse<T>>>,
     rowsPerPage: number = 10, 
-    role?: string,
+    status?: string,
 ) => {
     const [listData, setListData] = useState<T[]>([]);
     const [total, setTotal] = useState(0);
@@ -24,12 +24,12 @@ export const useDataList = <T>(
 
     const latestFetchRef = useRef<number>(0);
 
-    const fetchData = useCallback(async(page: number, limit: number, role?: string, searchTerm?: string) => {
+    const fetchData = useCallback(async(page: number, limit: number, status?: string, searchTerm?: string) => {
         setLoading(true);
         const fetchId = Date.now();
         latestFetchRef.current = fetchId;
         try {
-            const res = await fn({ page: page, limit: limit, role: role, searchTerm: searchTerm});
+            const res = await fn({ page: page, limit: limit, status: status, searchTerm: searchTerm});
             // Chặn kết quả cũ ghi đè khi debounce bị overlap
             if (latestFetchRef.current !== fetchId) return;
 
@@ -50,8 +50,8 @@ export const useDataList = <T>(
     }, [fn]);
 
     const debounceGet = useMemo(
-        () => debounce((page: number, limit: number, role?: string, searchTerm?: string) => {
-            fetchData(page, limit, role, searchTerm);
+        () => debounce((page: number, limit: number, status?: string, searchTerm?: string) => {
+            fetchData(page, limit, status, searchTerm);
         }, 500),
         [fetchData]
     )
@@ -59,10 +59,10 @@ export const useDataList = <T>(
     // Lần đầu hoặc khi page/status/curator thay đổi -> fetch ngay
     useEffect(() => {
         debounceGet.cancel(); // ngắt debounce cũ
-        fetchData(page, rowsPerPage, role);
-        if(searchTerm) debounceGet(page, rowsPerPage, role, searchTerm);
+        fetchData(page, rowsPerPage, status);
+        if(searchTerm) debounceGet(page, rowsPerPage, status, searchTerm);
         return () => debounceGet.cancel();
-  } , [page, rowsPerPage, role, searchTerm]);
+  } , [page, rowsPerPage, status, searchTerm]);
 
     const handlePageChange = (newPage: any) => {
         setPage(newPage)

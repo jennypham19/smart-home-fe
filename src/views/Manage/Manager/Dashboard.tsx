@@ -10,6 +10,7 @@ import avatar1 from '@/assets/images/users/avatar-1.png';
 import Backdrop from "@/components/Backdrop";
 import Grid from "@mui/material/Grid2"
 import { ROUTE_PATH } from "@/constants/routes";
+import useAuth from "@/hooks/useAuth";
 
 /* ------------------------------------------------------------------ */
 /* Sub-components                                                      */
@@ -201,6 +202,7 @@ const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: s
 const DashboardManager= () => {
     const navigate = useNavigate()
     const notify = useNotification();
+    const { profile } = useAuth()
     const [productionOrders, setProductionOrders] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>('')
@@ -249,10 +251,16 @@ const DashboardManager= () => {
     }
 
   const handleApprovedByManager = async(orderId: string) => {
-        setLoading(true);
-        try {
-        const status = 'pending_production'
-        const res = await approvedByManager(orderId, status)
+      setLoading(true);
+      try {
+          const status = 'pending_production'
+          const userId = profile && profile.id
+          if(!userId) return;
+          const payload: { status: string, approvedBy: string} = {
+            status: status,
+            approvedBy: userId
+          }
+          const res = await approvedByManager(orderId, payload)
         notify({
             message: res.message,
             severity: 'success'

@@ -68,3 +68,32 @@ export interface IOrder{
         updatedAt?: string, 
     }[]
 }
+
+export interface IExchangeOrder{
+    id: string,
+    deliveryOrderCode: string,
+    deliveryOrderName: string,
+    order: IOrder,
+    deliveryPerson: {
+        id: string,
+        fullName: string,
+        phone: string,
+        vehicleType: string,
+        licensePlate: string
+    },
+    recipient: {
+        id: string,
+        fullName: string,
+        phone: string,
+        email: string | null,
+        address: string    
+    },
+    deliveryDate: string,
+    deliveryStatus: string,
+    shippingFee: string,
+    shippingCarrier: string,
+    address: string,
+    createdAt: string,
+    updatedAt: string
+    
+}

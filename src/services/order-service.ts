@@ -2,7 +2,7 @@ import type { HttpResponse } from '@/types/common';
 import HttpClient from '@/utils/HttpClient';
 import { GetParams, PaginatedResponse } from './base-service';
 import { ProductPayload } from '@/types/product';
-import { BodyPayload, IOrder, OrderPayload } from '@/types/order';
+import { BodyPayload, IExchangeOrder, IOrder, OrderPayload } from '@/types/order';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; 
 const prefix = `${API_BASE_URL}/api/orders`;
@@ -62,7 +62,7 @@ export const getOrdersPaginatedWithStatusPendingManagerApproval = async(getParam
   }
 }
 
-// Lấy danh sách 
+// Lấy danh sách chờ tiếp nhận
 export const getReceivedOrders = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IOrder>>>=> {
   const url = `${prefix}/list-received-orders`;
   const params: Record<string, any> = {
@@ -76,6 +76,52 @@ export const getReceivedOrders = async(getParams: GetParams) : Promise<HttpRespo
     success: boolean,
     message: string,
     data: PaginatedResponse<IOrder>
+  }>(url, { params });
+  
+  if(response.data && response.success && response.data){
+    return response;
+  }else{
+    throw new Error(response.message || 'Failed to fetch list user');
+  }
+}
+
+// Lấy danh sách đơn hàng giao nhận có trạng thái pending_approval (Chờ phê duyệt)
+export const getListExchangeOrderWithPendingApproval = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IExchangeOrder>>>=> {
+  const url = `${prefix}/exchange-orders-with-pending-approval`;
+  const params: Record<string, any> = {
+    page: getParams.page,
+    limit: getParams.limit,
+  }
+  if(getParams.searchTerm && getParams.searchTerm.trim()) {
+    params.searchTerm = getParams.searchTerm
+  };
+  const response = await HttpClient.get<{
+    success: boolean,
+    message: string,
+    data: PaginatedResponse<IExchangeOrder>
+  }>(url, { params });
+  
+  if(response.data && response.success && response.data){
+    return response;
+  }else{
+    throw new Error(response.message || 'Failed to fetch list user');
+  }
+}
+
+// Lấy danh sách đơn hàng giao nhận có trạng thái pending_approval (Chờ phê duyệt)
+export const getListExchangeOrders = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IExchangeOrder>>>=> {
+  const url = `${prefix}/exchange-orders`;
+  const params: Record<string, any> = {
+    page: getParams.page,
+    limit: getParams.limit,
+  }
+  if(getParams.searchTerm && getParams.searchTerm.trim()) {
+    params.searchTerm = getParams.searchTerm
+  };
+  const response = await HttpClient.get<{
+    success: boolean,
+    message: string,
+    data: PaginatedResponse<IExchangeOrder>
   }>(url, { params });
   
   if(response.data && response.success && response.data){
