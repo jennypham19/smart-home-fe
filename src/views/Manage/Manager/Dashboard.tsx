@@ -238,7 +238,6 @@ const DashboardManager= () => {
     }, [fetchDashboardData]);
 
     const onHandlePrimaryButton = (type: string, orderId: string) => {
-        console.log("orderId: ", orderId);
         if(!orderId) return;
         switch (type) {
             case 'gui-duyet':
@@ -285,14 +284,14 @@ const DashboardManager= () => {
         >
             {loading && <Backdrop open={loading} />}
             {/* Đơn hàng sản xuất gần đây */}
-            <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT_APPROVAL}`)} />
+            {/* <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT_APPROVAL}`)} />
             <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
                 {productionOrders.slice(0,3).map((order) => (
                 <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
                     <ProductionCard order={order} onHandle={onHandlePrimaryButton} />
                 </Grid>
                 ))}
-            </Grid>
+            </Grid> */}
         </Box>
     )
 }

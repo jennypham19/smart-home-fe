@@ -36,7 +36,12 @@ const ReceivedOrders = () => {
         try {
             const userId = profile && profile.id
             if(!userId) return;
-            const res = await receivedOrderByProEmployee(orderId, userId);
+            const payload: { userId: string, status: string } = {
+                userId,
+                status: 'pending_production'
+            }
+            if(!userId) return;
+            const res = await receivedOrderByProEmployee(orderId, payload);
             notify({
                 message: res.message,
                 severity: 'success'

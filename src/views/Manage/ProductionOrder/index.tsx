@@ -84,7 +84,7 @@ const FilterChip = ({
   active = false,
   onClick,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   active?: boolean;
   onClick?: () => void;

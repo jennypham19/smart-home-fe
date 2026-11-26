@@ -52,7 +52,14 @@ export interface IOrder{
     productQuantity: any,
     process: number,
     status: string,
-    createdBy: string,
+    createdBy: {
+        fullName: string,
+        role: string
+    },
+    approvedBy: {
+        fullName: string,
+        role: string
+    },
     assignedTo: string,
     createdAt?: string,
     updatedAt?: string,

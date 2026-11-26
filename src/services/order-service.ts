@@ -62,6 +62,32 @@ export const getOrdersPaginatedWithStatusPendingManagerApproval = async(getParam
   }
 }
 
+// Lấy danh sách đơn hàng sản xuất theo trạng thái đã duyệt, chờ sản xuất, đang sản xuất, đã sản xuất, bị từ chối
+export const getOrdersWithStatus = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IOrder>>>=> {
+  const url = `${prefix}/list-orders-with-status`;
+  const params: Record<string, any> = {
+    page: getParams.page,
+    limit: getParams.limit,
+  }
+  if(getParams.searchTerm && getParams.searchTerm.trim()) {
+    params.searchTerm = getParams.searchTerm
+  };
+  if(getParams.status !== 'all'){
+    params.status = getParams.status
+  };
+  const response = await HttpClient.get<{
+    success: boolean,
+    message: string,
+    data: PaginatedResponse<IOrder>
+  }>(url, { params });
+  
+  if(response.data && response.success && response.data){
+    return response;
+  }else{
+    throw new Error(response.message || 'Failed to fetch list user');
+  }
+}
+
 // Lấy danh sách chờ tiếp nhận
 export const getReceivedOrders = async(getParams: GetParams) : Promise<HttpResponse<PaginatedResponse<IOrder>>>=> {
   const url = `${prefix}/list-received-orders`;
@@ -202,8 +228,8 @@ export const createOrderShipping = async(payload: BodyPayload) => {
 }
 
 // Tiếp nhận đơn hàng
-export const receivedOrderByProEmployee = (orderId: string, userId: string) => {
-  return HttpClient.patch<{ userId: string}, HttpResponse>(`${prefix}/order-received-by-pro-employee/${orderId}`, {userId})
+export const receivedOrderByProEmployee = (orderId: string, payload: { userId: string, status: string }) => {
+  return HttpClient.patch<HttpResponse>(`${prefix}/order-received-by-pro-employee/${orderId}`, payload as any)
 }
 
 // Xóa đơn hàng ở trạng thái chờ quản lý duyệt
