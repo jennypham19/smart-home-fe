@@ -20,7 +20,6 @@ import {
 import Grid from '@mui/material/Grid2';
 import {
   Add,
-  Archive,
   CheckCircle,
   CheckCircleOutline,
   DeleteOutline,
@@ -38,7 +37,7 @@ import {
 import avatar1 from '@/assets/images/users/avatar-1.png';
 import CustomPagination from '@/components/Pagination/CustomPagination';
 import AddProductionOrder from './components/AddProductionOrder';
-import { approvedByAppEmployee, getOrders, handleGenerateOrderCode } from '@/services/order-service';
+import { approvedByAppEmployee, deleteOrderWithStatusPendingManagerApproval, getOrders, handleGenerateOrderCode } from '@/services/order-service';
 import { useFetchData } from '@/hooks/useFetchData';
 import { IOrder } from '@/types/order';
 import { getOrderStatusColor, getOrderStatusLabel } from '@/utils/labelEntoVni';
@@ -49,6 +48,9 @@ import { OrderStatus } from '@/constants/status';
 import ViewProductionOrder from './components/ViewProductionOrder';
 import EditProductionOrder from './components/EditProductionOrder';
 import InformationProductionOrder from './components/InformationProductionOrder';
+import DialogConfirm from '@/views/components/DialogConfirm';
+import SectionHeader from '../components/SectionHeader';
+import TableActionButton from '../components/TableActionButton';
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                             */
@@ -82,7 +84,7 @@ const FilterChip = ({
   active = false,
   onClick,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   active?: boolean;
   onClick?: () => void;
@@ -123,7 +125,7 @@ const CardActionButton = ({ order, onHandleButton }: { order: IOrder, onHandleBu
     },
   };
 
-  if (order.process === 100) {
+  if (order.status === OrderStatus.PRODUCTION_COMPLETED && !order.isOrderShippingCreated) {
     return (
       <Button
         onClick={() => onHandleButton('nhap-thong-tin', order)}
@@ -232,32 +234,7 @@ const ProductionCard = ({ order, onHandleButton }: { order: IOrder, onHandleButt
   </Box>
 );
 
-/* ------------------------------------------------------------------ */
-/* Nút thao tác trong bảng                                             */
-/* ------------------------------------------------------------------ */
-const TableActionButton = ({ icon, onHandleOpenButton, toolTip }: { icon: ReactNode, onHandleOpenButton: () => void, toolTip: string }) => (
-  <Tooltip title={toolTip}>
-    <Box
-      onClick={onHandleOpenButton}
-      component="button"
-      sx={{
-        width: 34,
-        height: 34,
-        borderRadius: 2,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: `1px solid ${C.border}`,
-        bgcolor: 'transparent',
-        color: C.text,
-        cursor: 'pointer',
-        '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: C.textMuted },
-      }}
-    >
-      {icon}
-    </Box>
-  </Tooltip>
-);
+
 
 /* ================================================================== */
 const ProductionOrder = () => {
@@ -326,6 +303,8 @@ const ProductionOrder = () => {
       case 'nhap-thong-tin':
         setTypeProductionOrder({ open: true, type: 'nhap-thong-tin'})
         break;
+      case 'delete':
+        setTypeProductionOrder({ open: true, type: 'delete'})
     }
   } 
 
@@ -344,6 +323,9 @@ const ProductionOrder = () => {
       case 'nhap-thong-tin':
         setTypeProductionOrder({ open: false, type: 'nhap-thong-tin'})
         break;
+      case 'delete':
+        setTypeProductionOrder({ open: false, type: 'delete'})
+        break;
     }
   } 
 
@@ -359,6 +341,28 @@ const ProductionOrder = () => {
     }
   }
 
+    const handleDeleteOrder = async() => {
+      setLoading(true)
+      try {
+        const res = order && await deleteOrderWithStatusPendingManagerApproval(order.id)
+        notify({
+          message: res.message,
+          severity: 'success'
+        })
+        handleCloseTypeProductionOrder('delete')
+        fetchData(page, rowsPerPage)
+      } catch (error: any) {
+        notify({
+          message: error.message,
+          severity: 'error'
+        })
+        handleCloseTypeProductionOrder('delete')
+      } finally{
+        setLoading(false)
+      }
+    }
+
+  const completedOrder = listData.filter(order => order.status === OrderStatus.PRODUCTION_COMPLETED)
   return (
     <Box sx={{ bgcolor: C.bg, minHeight: '100%', p: { xs: 2, sm: 3, md: 4 } }}>
       {/* Toolbar trên cùng */}
@@ -370,37 +374,15 @@ const ProductionOrder = () => {
         spacing={2}
         sx={{ mb: 3 }}
       >
-        <Stack
-          direction="row"
-          spacing={1.5}
-          sx={{ overflowX: 'auto', pb: { xs: 1, md: 0 } }}
-        >
-          <FilterChip
-            icon={<FilterList sx={{ fontSize: 18 }} />}
-            label="Bộ lọc"
-            active={activeCardFilter === 'filter'}
-            onClick={() => setActiveCardFilter('filter')}
-          />
-          <FilterChip
-            icon={<NoteAddOutlined sx={{ fontSize: 18 }} />}
-            label="Đơn hàng mới tạo"
-            active={activeCardFilter === 'new'}
-            onClick={() => setActiveCardFilter('new')}
-          />
-          <FilterChip
-            icon={<ShoppingBasketOutlined sx={{ fontSize: 18 }} />}
-            label="Đơn hàng thành công"
-            active={activeCardFilter === 'success'}
-            onClick={() => setActiveCardFilter('success')}
-          />
-          <FilterChip
-            icon={<ShoppingBasketOutlined sx={{ fontSize: 18 }} />}
-            label="Đơn hàng lỗi"
-            active={activeCardFilter === 'error'}
-            onClick={() => setActiveCardFilter('error')}
-          />
+        <Stack direction='column' mb={{ xs: 2, md: 0 }}>
+          <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
+             Đơn sản xuất
+          </Typography>
+          <Stack direction='row'>
+            <Typography variant="subtitle2" sx={{ color: C.textMuted }}>{total} đơn hàng •</Typography> 
+            <Typography variant="subtitle2" sx={{ color: C.textMuted }}>{completedOrder.length} đã sản xuất</Typography> 
+          </Stack>
         </Stack>
-
         <Button
           variant="contained"
           startIcon={<Add />}
@@ -421,23 +403,18 @@ const ProductionOrder = () => {
         </Button>
       </Stack>
 
-      {/* Đơn hàng sản xuất gần đây */}
-      <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
-        Đơn hàng sản xuất gần đây
-      </Typography>
+      {/* Đơn hàng đã sản xuất */}
+      <SectionHeader title='Đơn hàng đã sản xuất' onClick={() => {}}/>
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
-        {listData.slice(0,3).map((order) => (
+        {completedOrder.slice(0,3).map((order) => (
           <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
             <ProductionCard order={order} onHandleButton={handleButton}/>
           </Grid>
         ))}
       </Grid>
 
-      {/* Đơn hàng sản xuất hoàn thành */}
-      <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
-        Đơn hàng sản xuất
-      </Typography>
-
+      {/* Danh sách đơn hàng sản xuất */}
+      <SectionHeader title='Danh sách đơn hàng sản xuất' onClick={() => {}}/>
       <Box
         sx={{
           bgcolor: C.surface,
@@ -556,17 +533,14 @@ const ProductionOrder = () => {
                   <TableCell align="center" sx={{ borderColor: C.border }}>
                     <Stack direction="row" spacing={1} justifyContent="center">
                       <TableActionButton toolTip='Xem chi tiết' onHandleOpenButton={() => handleOpenTypeProductionOrder('view', row)} icon={<VisibilityOutlined fontSize="small" />} />
-                      {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
-                      <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
+                      {(row.status === OrderStatus.PENDING_PRODUCTION || row.status === OrderStatus.PENDING_MANAGER_APPROVAL) && (
+                        <TableActionButton toolTip='Chỉnh sửa' onHandleOpenButton={() => handleOpenTypeProductionOrder('edit', row)} icon={<EditOutlined fontSize="small" />} />
                       )}
-                      {row.status !== OrderStatus.PRODUCTION_COMPLETED && (
+                      {row.status === OrderStatus.PENDING_MANAGER_APPROVAL && (
                         <TableActionButton toolTip='Xóa' onHandleOpenButton={() => handleOpenTypeProductionOrder('delete', row)} icon={<DeleteOutline fontSize="small" />} />
                       )}
                       {(row.status === OrderStatus.PRODUCTION_COMPLETED && !row.isOrderShippingCreated) && (
-                        <>
-                          <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
-                          <TableActionButton toolTip='Chuyển lưu trữ' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<Archive fontSize='small'/>} />
-                        </>
+                        <TableActionButton toolTip='Nhập thông tin' onHandleOpenButton={() => handleOpenTypeProductionOrder('nhap-thong-tin', row)} icon={<NearMeOutlined fontSize='small'/>} />
                       )}
                     </Stack>
                   </TableCell>
@@ -627,6 +601,14 @@ const ProductionOrder = () => {
           open={typeProductionOrder.open}
           onClose={() => handleCloseTypeProductionOrder('nhap-thong-tin')}
           order={order}
+        />
+      )}
+      {typeProductionOrder.open && typeProductionOrder.type === 'delete' && order && (
+        <DialogConfirm
+          open={typeProductionOrder.open}
+          onAgree={handleDeleteOrder}
+          onClose={() => handleCloseTypeProductionOrder('delete')}
+          title={`Bạn chắc chắn muốn xóa đơn hàng ${order.code}?`}
         />
       )}
     </Box>

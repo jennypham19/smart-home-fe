@@ -58,18 +58,18 @@ const ViewProductionOrder = (props: ViewProductionOrderProps) => {
                 </Stack>
                 {/* Header */}
                 <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-                <Avatar src={avatar1} sx={{ width: 48, height: 48 }} />
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography noWrap sx={{ color: C.text, fontWeight: 700, fontSize: 16 }}>
-                    {order.code}
+                    <Avatar src={avatar1} sx={{ width: 48, height: 48 }} />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography noWrap sx={{ color: C.text, fontWeight: 700, fontSize: 16 }}>
+                        {order.code}
+                        </Typography>
+                        <Typography noWrap sx={{ color: C.text, fontSize: 15 }}>
+                        {order.name}
+                        </Typography>
+                    </Box>
+                    <Typography sx={{ color: C.green, fontWeight: 700, fontSize: 18 }}>
+                        {order.process}%
                     </Typography>
-                    <Typography noWrap sx={{ color: C.text, fontSize: 15 }}>
-                    {order.name}
-                    </Typography>
-                </Box>
-                <Typography sx={{ color: C.green, fontWeight: 700, fontSize: 18 }}>
-                    {order.process}%
-                </Typography>
                 </Stack>
 
                 {/* Progress */}

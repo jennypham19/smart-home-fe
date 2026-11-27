@@ -68,3 +68,31 @@ export const ORDER_STATUS_LABEL: { [key in OrderStatus]: string } = {
   [OrderStatus.MANAGER_APPROVED]: 'Quản lý duyệt',
   [OrderStatus.MANAGER_REJECTED]: 'Quản lý từ chối'
 }
+
+export const ExchangeOrderStatus = {
+  PENDING_APPROVAL: 'pending_approval',
+  AWAITING_PICKUP: 'awaiting_pickup',
+  PICKED_UP: 'picked_up',
+  OUT_OF_DELIVERY: 'out_for_delivery',
+  DELIVERED: 'delivered',
+  DELIVERY_FAILED: 'delivery_failed',
+  CANCELLED: 'cancelled',
+  REJECTED: 'rejected',
+  MANAGER_APPROVED: 'manager_approved',
+  MANAGER_REJECTED: 'manager_rejected'
+}
+
+export type ExchangeOrderStatus = typeof ExchangeOrderStatus[keyof typeof ExchangeOrderStatus];
+
+export const EXCHANGE_ORDER_STATUS_LABEL: { [key in ExchangeOrderStatus]: string} = {
+  [ExchangeOrderStatus.PENDING_APPROVAL]: "Chờ phê duyệt",
+  [ExchangeOrderStatus.AWAITING_PICKUP]: "Chờ lấy hàng",
+  [ExchangeOrderStatus.PICKED_UP]: "Đã lấy hàng",
+  [ExchangeOrderStatus.OUT_OF_DELIVERY]: "Đang giao",
+  [ExchangeOrderStatus.DELIVERED]: "Đã giao",
+  [ExchangeOrderStatus.DELIVERY_FAILED]: "Giao thất bại",
+  [ExchangeOrderStatus.CANCELLED]: "Đã hủy",
+  [ExchangeOrderStatus.REJECTED]: "Bị từ chối",
+  [ExchangeOrderStatus.MANAGER_APPROVED]: 'Quản lý duyệt',
+  [ExchangeOrderStatus.MANAGER_REJECTED]: 'Quản lý từ chối'
+}

@@ -230,7 +230,7 @@ const MenuItems = (props: MenuItemsProps) => {
         const key = `${title}-${level}-${i}`;
         // const partialMatch = pathname.startsWith(path);
         const exactMatch = pathname === path || pathname.startsWith(`${path}/`);
-
+        
         if (children) {
           acc.push(
             <MenuItem

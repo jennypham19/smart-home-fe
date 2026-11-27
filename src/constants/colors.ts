@@ -15,7 +15,14 @@ export const COLORS = {
   COLOR_DETAIL: '#33E9FD',
   COLOR_PRIMARY: '#2764EB',
   COLOR_TEXT: '#fff',
-  PRIMARY: '#131B2E'
+  PRIMARY: '#131B2E',
+  STATUS: {
+    COMPLETED: '#17A34A',
+    PENDING: '#BA1B1C',
+    IN_PROGRESS: '#E7A22F',
+    WARNING: '#D9822B',
+    ERROR: '#BA1A1A'
+  },
 };
 
 

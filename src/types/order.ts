@@ -52,7 +52,15 @@ export interface IOrder{
     productQuantity: any,
     process: number,
     status: string,
-    createdBy: string,
+    createdBy: {
+        fullName: string,
+        role: string
+    },
+    approvedBy: {
+        fullName: string,
+        role: string
+    },
+    assignedTo: string,
     createdAt?: string,
     updatedAt?: string,
     isOrderShippingCreated: boolean,
@@ -66,4 +74,34 @@ export interface IOrder{
         createdAt?: string,
         updatedAt?: string, 
     }[]
+}
+
+export interface IExchangeOrder{
+    id: string,
+    deliveryOrderCode: string,
+    deliveryOrderName: string,
+    order: IOrder,
+    assignedTo: string,
+    deliveryPerson: {
+        id: string,
+        fullName: string,
+        phone: string,
+        vehicleType: string,
+        licensePlate: string
+    },
+    recipient: {
+        id: string,
+        fullName: string,
+        phone: string,
+        email: string | null,
+        address: string    
+    },
+    deliveryDate: string,
+    deliveryStatus: string,
+    shippingFee: string,
+    shippingCarrier: string,
+    address: string,
+    createdAt: string,
+    updatedAt: string
+    
 }

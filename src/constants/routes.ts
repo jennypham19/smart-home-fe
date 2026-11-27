@@ -21,12 +21,13 @@ export const ROUTE_PATH = {
   MANAGE_HOME: 'home',
   MANAGE_PRODUCT: 'san-pham',
   MANAGE_PRODUCT_APPROVAL: 'duyet-san-xuat',
-  MANAGE_EXCHANGE_APPROVAL: 'duyet-giao hàng',
+  MANAGE_EXCHANGE_APPROVAL: 'duyet-giao-hang',
   MANAGE_COMPLETED_ORDER: 'don-hoan-thanh',
   MANAGE_PRODUCTION_ORDER: 'don-san-xuat',
   MANAGE_EXCHANGE_ORDER: 'don-giao-nhan',
   MANAGE_UPDATE_ORDER: 'cap-nhat-don',
-
+  MANAGE_PACKING_MANAGEMENT: 'quan-ly-dong-hang',
+  MANAGE_RECEIVED_ORDER: 'don-tiep-nhan',
 
 
 

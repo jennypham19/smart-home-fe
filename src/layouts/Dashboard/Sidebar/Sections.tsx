@@ -125,6 +125,16 @@ const ProductionEmployeeSidebars = (): Section[] => [
         icon: HomeOutlined        
       },
       {
+        title: 'Đơn tiếp nhận',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_RECEIVED_ORDER}`,
+        icon: HomeOutlined        
+      },
+      {
+        title: 'Quản lý đóng hàng',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PACKING_MANAGEMENT}`,
+        icon: HomeOutlined        
+      },
+      {
         title: 'Sản phẩm',
         path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT}`,
         icon: HomeOutlined
@@ -144,8 +154,8 @@ const ExchangeEmployeeSidebars = (): Section[] => [
         icon: HomeOutlined        
       },
       {
-        title: 'Đơn giao nhận',
-        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_EXCHANGE_ORDER}`,
+        title: 'Đơn tiếp nhận',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_RECEIVED_ORDER}`,
         icon: HomeOutlined        
       },
       {

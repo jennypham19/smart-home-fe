@@ -10,6 +10,7 @@ import avatar1 from '@/assets/images/users/avatar-1.png';
 import Backdrop from "@/components/Backdrop";
 import Grid from "@mui/material/Grid2"
 import { ROUTE_PATH } from "@/constants/routes";
+import useAuth from "@/hooks/useAuth";
 
 /* ------------------------------------------------------------------ */
 /* Sub-components                                                      */
@@ -201,6 +202,7 @@ const ProductionCard = ({ order, onHandle }: { order: IOrder, onHandle: (type: s
 const DashboardManager= () => {
     const navigate = useNavigate()
     const notify = useNotification();
+    const { profile } = useAuth()
     const [productionOrders, setProductionOrders] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>('')
@@ -236,7 +238,6 @@ const DashboardManager= () => {
     }, [fetchDashboardData]);
 
     const onHandlePrimaryButton = (type: string, orderId: string) => {
-        console.log("orderId: ", orderId);
         if(!orderId) return;
         switch (type) {
             case 'gui-duyet':
@@ -249,10 +250,16 @@ const DashboardManager= () => {
     }
 
   const handleApprovedByManager = async(orderId: string) => {
-        setLoading(true);
-        try {
-        const status = 'pending_production'
-        const res = await approvedByManager(orderId, status)
+      setLoading(true);
+      try {
+          const status = 'pending_production'
+          const userId = profile && profile.id
+          if(!userId) return;
+          const payload: { status: string, approvedBy: string} = {
+            status: status,
+            approvedBy: userId
+          }
+          const res = await approvedByManager(orderId, payload)
         notify({
             message: res.message,
             severity: 'success'
@@ -277,14 +284,14 @@ const DashboardManager= () => {
         >
             {loading && <Backdrop open={loading} />}
             {/* Đơn hàng sản xuất gần đây */}
-            <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT_APPROVAL}`)} />
+            {/* <SectionHeader title="Đơn hàng sản xuất gần đây" onNavigate={() => navigate(`${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_PRODUCT_APPROVAL}`)} />
             <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
                 {productionOrders.slice(0,3).map((order) => (
                 <Grid key={order.code} size={{ xs: 12, sm: 6, md: 4 }}>
                     <ProductionCard order={order} onHandle={onHandlePrimaryButton} />
                 </Grid>
                 ))}
-            </Grid>
+            </Grid> */}
         </Box>
     )
 }
