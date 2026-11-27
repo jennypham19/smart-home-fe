@@ -35,7 +35,8 @@ export type FormErrors = {
 }
 
 export interface ProductRow {
-    skuCode: string,
+    id: string,        // dùng để binding value cho Select (= item.id)
+    skuCode: string,   // dùng để lưu xuống payload
     name: string,
     quantity: string,
     description: string
@@ -108,7 +109,7 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
             setProducts(prev => {
                 const next = [...prev];
                 if (n > prev.length) {
-                    for (let i = prev.length; i < n; i++) next.push({ skuCode: '', name: '', quantity: '', description: '' });
+                    for (let i = prev.length; i < n; i++) next.push({ id: '', skuCode: '', name: '', quantity: '', description: '' });
                 } else {
                     next.length = n;
                 }
@@ -133,18 +134,25 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
         setProducts(prev => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
     }
 
-    // Chọn sản phẩm từ InputSelect: value chính là skuCode (duy nhất),
+    // Chọn sản phẩm từ InputSelect: value chính là id (duy nhất),
     // tra ngược allProducts để lấy đầy đủ cả name + skuCode. name có dạng: prod_{index}
     const handleProductSelect = (name: string, value: any) => {
         const [, idxStr] = name.split('_');
         const index = Number(idxStr);
-        const selected = allProducts.find(p => p.skuCode === value);
+        const selected = allProducts.find(p => p.id === value);
+
         setProducts(prev => prev.map((p, i) => (
             i === index
-                ? { ...p, skuCode: value ?? '', name: selected?.name ?? '' }
+                ? {
+                    ...p,
+                    id: selected?.id ?? '',          // binding cho Select
+                    skuCode: selected?.skuCode ?? '', // lưu xuống payload
+                    name: selected?.name ?? '',
+                }
                 : p
         )));
     }
+
 
     const validateForm = () : boolean => {
         const newErrors: FormErrors = {};
@@ -175,7 +183,7 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                     description: product.description ? product.description : null
                 })),
                 createdBy: profile ? profile?.id : null
-            }      
+            }   
             const res = await createOrder(payload);
             notify({
                 message: res.message,
@@ -291,7 +299,7 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                                 <InputSelect
                                     label=""
                                     name={`prod_${index}`}
-                                    value={product.skuCode}
+                                    value={product.id}
                                     onChange={handleProductSelect}
                                     margin='dense'
                                     placeholder="Chọn sản phẩm..."
@@ -299,7 +307,7 @@ const AddProductionOrder = (props: AddProductionOrderProps) => {
                                     transformOptions={(data) =>
                                         data.map((item) => ({
                                             label: item.name,
-                                            value: item.skuCode
+                                            value: item.id
                                         }))
                                     }
                                 />
