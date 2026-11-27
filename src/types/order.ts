@@ -81,6 +81,7 @@ export interface IExchangeOrder{
     deliveryOrderCode: string,
     deliveryOrderName: string,
     order: IOrder,
+    assignedTo: string,
     deliveryPerson: {
         id: string,
         fullName: string,

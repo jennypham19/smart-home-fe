@@ -77,7 +77,9 @@ export const ExchangeOrderStatus = {
   DELIVERED: 'delivered',
   DELIVERY_FAILED: 'delivery_failed',
   CANCELLED: 'cancelled',
-  REJECTED: 'rejected'
+  REJECTED: 'rejected',
+  MANAGER_APPROVED: 'manager_approved',
+  MANAGER_REJECTED: 'manager_rejected'
 }
 
 export type ExchangeOrderStatus = typeof ExchangeOrderStatus[keyof typeof ExchangeOrderStatus];
@@ -90,5 +92,7 @@ export const EXCHANGE_ORDER_STATUS_LABEL: { [key in ExchangeOrderStatus]: string
   [ExchangeOrderStatus.DELIVERED]: "Đã giao",
   [ExchangeOrderStatus.DELIVERY_FAILED]: "Giao thất bại",
   [ExchangeOrderStatus.CANCELLED]: "Đã hủy",
-  [ExchangeOrderStatus.REJECTED]: "Bị từ chối"
+  [ExchangeOrderStatus.REJECTED]: "Bị từ chối",
+  [ExchangeOrderStatus.MANAGER_APPROVED]: 'Quản lý duyệt',
+  [ExchangeOrderStatus.MANAGER_REJECTED]: 'Quản lý từ chối'
 }

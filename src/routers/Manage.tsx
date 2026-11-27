@@ -12,7 +12,7 @@ const ExchangeOrder = Loadable(lazy(() => import('@/views/Manage/ExchangeOrder/i
 const UpdateOrder = Loadable(lazy(() => import('@/views/Manage/UpdateOrder/index')));
 const Product = Loadable(lazy(() => import('@/views/Manage/Product/index')));
 const PackingManagement = Loadable(lazy(() => import('@/views/Manage/ProductionEmployee/PackingManagement')));
-const ReceivedOrder = Loadable(lazy(() => import('@/views/Manage/ProductionEmployee/ReceivedOrders')));
+const ReceivedOrder = Loadable(lazy(() => import('@/views/Manage/ReceivedOrder/index')));
 
 const manageRoutes: RouteObject[] = [
     { index: true, element: <Navigate to={ROUTE_PATH.MANAGE_HOME} replace/> },

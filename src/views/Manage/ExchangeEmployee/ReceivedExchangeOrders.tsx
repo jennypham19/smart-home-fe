@@ -1,19 +1,20 @@
 import Page from "@/components/Page";
 import { C } from "@/constants/colors";
 import { useFetchData } from "@/hooks/useFetchData";
-import { getReceivedOrders, receivedOrderByProEmployee } from "@/services/order-service";
-import { IOrder } from "@/types/order";
+import { getReceivedExchangeOrders, getReceivedOrders, receivedOrderByExchangeEmployee, receivedOrderByProEmployee } from "@/services/order-service";
+import { IExchangeOrder, IOrder } from "@/types/order";
 import { Alert, Box, Button, Stack, Typography } from "@mui/material";
 import SearchTextBox from "../components/SearchTextBox";
 import Backdrop from "@/components/Backdrop";
 import Grid from "@mui/material/Grid2";
-import ProductCardReceivedOrder from "./components/ProductCardReceivedOrder";
+// import ProductCardReceivedOrder from "./components/ProductCardReceivedOrder";
 import CustomPagination from "@/components/Pagination/CustomPagination";
 import useNotification from "@/hooks/useNotification";
 import useAuth from "@/hooks/useAuth";
+import ExchangeOrderCard from "../ExchangeOrder/components/ExchangeOrderCard";
 
 // ReceivedOrders - Đơn tiếp nhận
-const ReceivedOrders = () => {
+const ReceivedExchangeOrders = () => {
     const notify = useNotification();
     const { profile } = useAuth();
     const {
@@ -29,7 +30,7 @@ const ReceivedOrders = () => {
         setListData,
         setLoading,
         searchTerm
-    } = useFetchData<IOrder>((params) => getReceivedOrders(params), 6);
+    } = useFetchData<IExchangeOrder>((params) => getReceivedExchangeOrders(params), 6);
 
     const handleReceivedOrder = async(orderId: string) => {
         setLoading(true)
@@ -38,10 +39,10 @@ const ReceivedOrders = () => {
             if(!userId) return;
             const payload: { userId: string, status: string } = {
                 userId,
-                status: 'pending_production'
+                status: 'awaiting_pickup'
             }
             if(!userId) return;
-            const res = await receivedOrderByProEmployee(orderId, payload);
+            const res = await receivedOrderByExchangeEmployee(orderId, payload);
             notify({
                 message: res.message,
                 severity: 'success'
@@ -64,7 +65,7 @@ const ReceivedOrders = () => {
                         <Typography sx={{ color: C.text, fontSize: { xs: 18, md: 20 }, fontWeight: 700, mb: 2 }}>
                             Đơn hàng tiếp nhận
                         </Typography>
-                        <Typography variant="subtitle2" sx={{ color: C.textMuted }}>{total} đơn hàng đang chờ sản xuất</Typography>
+                        <Typography variant="subtitle2" sx={{ color: C.textMuted }}>{total} đơn hàng đang chờ giao nhận</Typography>
                     </Stack>
                     <SearchTextBox
                         initialValue={searchTerm}
@@ -82,8 +83,8 @@ const ReceivedOrders = () => {
                         <Grid container spacing={{ xs: 2, md: 3 }}>
                             {listData.map((order) => (
                                 <Grid key={order.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                                    <ProductCardReceivedOrder
-                                        order={order}
+                                    <ExchangeOrderCard
+                                        exchangeOrder={order}
                                     >
                                         {!order.assignedTo && (
                                             <Button
@@ -100,7 +101,7 @@ const ReceivedOrders = () => {
                                             </Button>                                            
                                         )}
 
-                                    </ProductCardReceivedOrder>
+                                    </ExchangeOrderCard>
                                 </Grid>
                             ))}
                         </Grid>
@@ -119,4 +120,4 @@ const ReceivedOrders = () => {
     )
 }
 
-export default ReceivedOrders;
+export default ReceivedExchangeOrders;

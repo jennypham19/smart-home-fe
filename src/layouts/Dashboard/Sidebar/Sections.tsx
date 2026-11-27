@@ -154,8 +154,8 @@ const ExchangeEmployeeSidebars = (): Section[] => [
         icon: HomeOutlined        
       },
       {
-        title: 'Đơn giao nhận',
-        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_EXCHANGE_ORDER}`,
+        title: 'Đơn tiếp nhận',
+        path: `${ROUTE_PATH.MANAGE}/${ROUTE_PATH.MANAGE_RECEIVED_ORDER}`,
         icon: HomeOutlined        
       },
       {
